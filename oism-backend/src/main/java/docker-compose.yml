@@ -1,0 +1,25 @@
+services:
+  db:
+    image: postgres:16
+    environment:
+      POSTGRES_DB: oism
+      POSTGRES_USER: oism
+      POSTGRES_PASSWORD: oism
+    ports: ["5432:5432"]
+    volumes: [pgdata:/var/lib/postgresql/data]
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U oism"]
+      interval: 5s
+      retries: 10
+  api:
+    build: .
+    depends_on:
+      db: { condition: service_healthy }
+    environment:
+      DB_URL: jdbc:postgresql://db:5432/oism
+      DB_USER: oism
+      DB_PASSWORD: oism
+      JWT_SECRET: dev-secret-dev-secret-dev-secret-dev-secret-12
+    ports: ["8080:8080"]
+volumes:
+  pgdata:
