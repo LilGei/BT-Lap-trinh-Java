@@ -1,4 +1,4 @@
-import "../styles/pos.css";
+import "../styles/PosHeader.css";
 
 function SearchIcon() {
   return (

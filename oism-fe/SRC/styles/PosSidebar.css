@@ -1,0 +1,123 @@
+.pos-sidebar {
+  background: #fff;
+  border-right: 1px solid #e8edf2;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  padding: 22px 14px 16px;
+}
+
+.pos-sidebar__nav {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.pos-sidebar__section {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.pos-sidebar__section-label {
+  color: #9aa4ae;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  padding: 0 10px 7px;
+}
+
+.pos-sidebar__item {
+  align-items: center;
+  border-radius: 9px;
+  color: #667381;
+  display: flex;
+  font-size: 12px;
+  font-weight: 500;
+  gap: 11px;
+  min-height: 42px;
+  padding: 0 10px;
+  white-space: nowrap;
+}
+
+.pos-sidebar__item--active {
+  background: #eaf4f0;
+  color: #176b53;
+  font-weight: 700;
+}
+
+.pos-sidebar__icon {
+  flex: 0 0 19px;
+  height: 19px;
+  stroke: currentColor;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-width: 1.7;
+  width: 19px;
+}
+
+.pos-sidebar__footer {
+  align-items: center;
+  border-top: 1px solid #edf0f3;
+  color: #17212f;
+  display: flex;
+  gap: 10px;
+  margin-top: auto;
+  padding: 16px 4px 0;
+}
+
+.pos-sidebar__footer-mark {
+  align-items: center;
+  background: #176b53;
+  border-radius: 9px;
+  color: #fff;
+  display: inline-flex;
+  flex: 0 0 34px;
+  font-size: 16px;
+  font-weight: 800;
+  height: 34px;
+  justify-content: center;
+}
+
+.pos-sidebar__footer strong,
+.pos-sidebar__footer small {
+  display: block;
+}
+
+.pos-sidebar__footer strong {
+  font-size: 11px;
+}
+
+.pos-sidebar__footer small {
+  color: #84909d;
+  font-size: 10px;
+  margin-top: 4px;
+}
+
+@media (max-width: 760px) {
+  .pos-sidebar {
+    border-bottom: 1px solid #e8edf2;
+    border-right: 0;
+    overflow: hidden;
+    padding: 10px 12px;
+  }
+
+  .pos-sidebar__nav {
+    flex-direction: row;
+    gap: 12px;
+    overflow-x: auto;
+  }
+
+  .pos-sidebar__section {
+    align-items: center;
+    flex-direction: row;
+    flex: 0 0 auto;
+    gap: 5px;
+  }
+
+  .pos-sidebar__section-label,
+  .pos-sidebar__footer {
+    display: none;
+  }
+}
