@@ -18,7 +18,8 @@ const formatDate = (date) => {
 };
 
 function OrdersPage() {
-  const [orders] = useState(initialOrders);
+  const [orders, setOrders] = useState(initialOrders);
+  const [selectedOrder, setSelectedOrder] = useState(null);
   const [keyword, setKeyword] = useState("");
   const [status, setStatus] = useState("Tất cả");
   const [dateFilter, setDateFilter] = useState("Tất cả");
@@ -49,6 +50,41 @@ function OrdersPage() {
     { title: "Đang giao", value: "86", note: "Đang thực hiện", color: "blue" },
     { title: "Đã hoàn thành", value: "1.102", note: "Hoàn tất", color: "green" },
   ];
+  const handleApprove = () => {
+  setOrders((prevOrders) =>
+    prevOrders.map((order) =>
+      order.id === selectedOrder.id
+        ? { ...order, status: "Đang giao" }
+        : order
+    )
+  );
+
+  setSelectedOrder((prev) => ({
+    ...prev,
+    status: "Đang giao",
+  }));
+};
+
+const handleCancel = () => {
+  const confirmed = window.confirm(
+    "Bạn có chắc chắn muốn hủy đơn hàng này?"
+  );
+
+  if (!confirmed) return;
+
+  setOrders((prevOrders) =>
+    prevOrders.map((order) =>
+      order.id === selectedOrder.id
+        ? { ...order, status: "Đã hủy" }
+        : order
+    )
+  );
+
+  setSelectedOrder((prev) => ({
+    ...prev,
+    status: "Đã hủy",
+  }));
+};
 
   return (
     <div className="orders-layout">
@@ -148,7 +184,11 @@ function OrdersPage() {
             <tbody>
               {filteredOrders.length > 0 ? (
                 filteredOrders.map((order, index) => (
-                  <tr key={order.id}>
+                  <tr
+                    key={order.id}
+                    onClick={() => setSelectedOrder(order)}
+                    style={{ cursor: "pointer" }}
+                  >
                     <td>{index + 1}</td>
                     <td>{order.id}</td>
                     <td>{order.channel}</td>
@@ -182,6 +222,59 @@ function OrdersPage() {
           </table>
         </section>
       </main>
+
+            {selectedOrder && (
+        <div className="order-modal-overlay">
+          <div className="order-modal">
+            <h2>Chi tiết đơn hàng</h2>
+
+            <p>
+              <strong>Mã đơn:</strong> {selectedOrder.id}
+            </p>
+
+            <p>
+              <strong>Kênh bán:</strong> {selectedOrder.channel}
+            </p>
+
+            <p>
+              <strong>Ngày tạo:</strong> {formatDate(selectedOrder.date)}
+            </p>
+
+            <p>
+              <strong>Tổng tiền:</strong> {formatMoney(selectedOrder.amount)}
+            </p>
+
+            <p>
+              <strong>Trạng thái:</strong> {selectedOrder.status}
+            </p>
+
+            <div className="order-modal-actions">
+              {selectedOrder.status === "Chờ xử lý" && (
+               <>
+                <button className="btn-approve" onClick={handleApprove}>
+                  Duyệt đơn
+                </button>
+
+                <button className="btn-cancel" onClick={handleCancel}>
+                 Hủy đơn
+                </button>
+              </>
+           )}
+
+          <button
+            className="btn-print"
+            onClick={() => window.print()}
+          >
+            In phiếu
+          </button>
+
+          <button onClick={() => setSelectedOrder(null)}>
+            Đóng
+          </button>
+        </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
