@@ -1,5 +1,7 @@
 import { useState } from "react";
-import PosCategoryFilter from "../components/PosCategoryFilter";
+import PosCategoryFilter, {
+  productCategories,
+} from "../components/PosCategoryFilter";
 import CartPanel from "../components/CartPanel";
 import PosHeader from "../components/PosHeader";
 import PosProductCard from "../components/PosProductCard";
@@ -14,6 +16,18 @@ function PosPage() {
   const [selectedCustomer, setSelectedCustomer] =
     useState("Walk-in Customer");
   const [cart, setCart] = useState([]);
+  const normalizedSearch = productSearch.trim().toLocaleLowerCase("vi");
+  const filteredProducts = mockProducts.filter((product) => {
+    const matchesCategory =
+      selectedCategory === productCategories[0] ||
+      product.category === selectedCategory;
+    const searchableFields = [product.name, product.sku, product.barcode];
+    const matchesSearch = searchableFields.some((field) =>
+      field.toLocaleLowerCase("vi").includes(normalizedSearch)
+    );
+
+    return matchesCategory && matchesSearch;
+  });
 
   const addProductToCart = (product) => {
     const available = product.onHand - product.reserved;
@@ -66,17 +80,7 @@ function PosPage() {
       <div className="pos-workspace">
         <PosSidebar />
         <main className="pos-layout">
-          <section className="pos-products" aria-labelledby="pos-products-title">
-            <div className="pos-section-heading">
-              <div>
-                <span className="pos-section-heading__eyebrow">BÁN HÀNG</span>
-                <h1 id="pos-products-title">Sản phẩm</h1>
-              </div>
-              <span className="pos-products__count">
-                {mockProducts.length} sản phẩm
-              </span>
-            </div>
-
+          <section className="pos-products" aria-label="Danh sách sản phẩm">
             <PosProductSearch
               value={productSearch}
               onChange={setProductSearch}
@@ -87,14 +91,24 @@ function PosPage() {
               onCategoryChange={setSelectedCategory}
             />
 
+            <div className="pos-products__summary" aria-live="polite">
+              {filteredProducts.length} kết quả
+            </div>
+
             <div className="pos-product-grid">
-              {mockProducts.map((product) => (
-                <PosProductCard
-                  key={product.id}
-                  product={product}
-                  onAdd={addProductToCart}
-                />
-              ))}
+              {filteredProducts.length > 0 ? (
+                filteredProducts.map((product) => (
+                  <PosProductCard
+                    key={product.id}
+                    product={product}
+                    onAdd={addProductToCart}
+                  />
+                ))
+              ) : (
+                <p className="pos-products__empty">
+                  Không tìm thấy sản phẩm phù hợp.
+                </p>
+              )}
             </div>
           </section>
 

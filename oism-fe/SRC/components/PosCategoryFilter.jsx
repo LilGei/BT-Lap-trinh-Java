@@ -1,12 +1,16 @@
 import "../styles/PosCategoryFilter.css";
 
-const categories = [
+export const productCategories = [
   "All Products",
   "Electronics",
   "Clothing",
   "Home & Kitchen",
   "Sports & Outdoors",
   "Accessories",
+  "Beauty & Personal Care",
+  "Toys & Games",
+  "Office Supplies",
+  "Food & Beverage",
 ];
 
 function PosCategoryFilter({ selectedCategory, onCategoryChange }) {
@@ -16,7 +20,7 @@ function PosCategoryFilter({ selectedCategory, onCategoryChange }) {
       role="group"
       aria-label="Product categories"
     >
-      {categories.map((category) => (
+      {productCategories.map((category) => (
         <button
           className={`pos-category-filter__button${
             selectedCategory === category

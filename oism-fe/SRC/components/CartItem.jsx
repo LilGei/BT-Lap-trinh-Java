@@ -25,23 +25,12 @@ function CartItem({ item, onIncrease, onDecrease, onRemove }) {
       </div>
 
       <div className="cart-item__content">
-        <div className="cart-item__heading">
-          <div className="cart-item__details">
-            <h3>{product.name}</h3>
-            <span>{formatCurrency(product.price)}</span>
-          </div>
-          <button
-            className="cart-item__remove"
-            type="button"
-            aria-label={`Xóa ${product.name} khỏi giỏ hàng`}
-            onClick={() => onRemove(product.id)}
-          >
-            ×
-          </button>
+        <div className="cart-item__details">
+          <h3>{product.name}</h3>
+          <span>SKU: {product.sku}</span>
         </div>
 
         <div className="cart-item__footer">
-          <span className="cart-item__stock">Tồn khả dụng: {available}</span>
           <div className="cart-item__quantity" aria-label="Số lượng">
             <button
               type="button"
@@ -61,7 +50,24 @@ function CartItem({ item, onIncrease, onDecrease, onRemove }) {
               +
             </button>
           </div>
+          <span className="cart-item__stock">Còn {available}</span>
         </div>
+      </div>
+
+      <div className="cart-item__actions">
+        <strong className="cart-item__price">
+          {formatCurrency(product.price * quantity)}
+        </strong>
+        <button
+          className="cart-item__remove"
+          type="button"
+          aria-label={`Xóa ${product.name} khỏi giỏ hàng`}
+          onClick={() => onRemove(product.id)}
+        >
+          <svg aria-hidden="true" viewBox="0 0 24 24" fill="none">
+            <path d="M4 7h16M10 11v6M14 11v6M5.5 7l1 14h11l1-14M9 7V4h6v3" />
+          </svg>
+        </button>
       </div>
     </article>
   );

@@ -6,7 +6,7 @@
   box-sizing: border-box;
   display: flex;
   gap: 11px;
-  margin-top: 20px;
+  margin-top: 0;
   min-height: 46px;
   padding: 0 13px;
   transition: border-color 150ms ease, box-shadow 150ms ease;
@@ -36,7 +36,8 @@
   color: #17212f;
   flex: 1;
   font: inherit;
-  font-size: 13px;
+  font-size: 14px;
+  font-weight: 500;
   min-width: 0;
   outline: 0;
 }

@@ -1,33 +1,45 @@
 .pos-customer {
   border-bottom: 1px solid #edf0f3;
-  padding: 16px 0;
+  padding: 0 0 12px;
 }
 
 .pos-customer__heading {
   align-items: center;
   display: flex;
   justify-content: space-between;
-  margin-bottom: 10px;
-}
-
-.pos-customer__eyebrow {
-  color: #84909d;
-  display: block;
-  font-size: 9px;
-  font-weight: 700;
-  letter-spacing: 0.1em;
-  margin-bottom: 4px;
+  margin-bottom: 9px;
 }
 
 .pos-customer__heading h3 {
-  color: #263341;
+  color: #17212f;
   font-size: 13px;
+  font-weight: 700;
   margin: 0;
 }
 
-.pos-customer__optional {
-  color: #9aa4ae;
-  font-size: 10px;
+.pos-customer__new {
+  align-items: center;
+  background: #f0f7f4;
+  border: 1px solid #d5e7df;
+  border-radius: 6px;
+  color: #176b53;
+  cursor: pointer;
+  display: inline-flex;
+  font: inherit;
+  font-size: 11px;
+  font-weight: 600;
+  gap: 4px;
+  min-height: 26px;
+  padding: 0 8px;
+}
+
+.pos-customer__new:hover {
+  background: #e4f1eb;
+}
+
+.pos-customer__new > span {
+  font-size: 15px;
+  line-height: 1;
 }
 
 .pos-customer__select {
@@ -37,7 +49,7 @@
   border-radius: 9px;
   display: flex;
   gap: 9px;
-  min-height: 42px;
+  min-height: 38px;
   padding: 0 10px;
   transition: border-color 150ms ease, box-shadow 150ms ease;
 }
@@ -66,14 +78,90 @@
   cursor: pointer;
   flex: 1;
   font: inherit;
-  font-size: 12px;
+  font-size: 13px;
+  font-weight: 500;
   min-width: 0;
   outline: 0;
 }
 
-.pos-customer__hint {
-  color: #98a2ad;
+.pos-customer__contact {
+  align-items: center;
+  color: #84909d;
+  display: flex;
   font-size: 10px;
-  line-height: 1.5;
-  margin: 7px 0 0;
+  gap: 6px;
+  margin: 7px 2px 0;
+}
+
+.pos-customer__contact svg {
+  height: 13px;
+  stroke: currentColor;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-width: 1.6;
+  width: 13px;
+}
+
+.pos-customer__form {
+  background: #f8faf9;
+  border: 1px solid #e8edf2;
+  border-radius: 8px;
+  display: grid;
+  gap: 7px;
+  margin-top: 9px;
+  padding: 9px;
+}
+
+.pos-customer__form input {
+  background: #fff;
+  border: 1px solid #e3e9ee;
+  border-radius: 6px;
+  box-sizing: border-box;
+  color: #263341;
+  font: inherit;
+  font-size: 10px;
+  min-height: 34px;
+  min-width: 0;
+  padding: 0 8px;
+  width: 100%;
+}
+
+.pos-customer__form input:focus {
+  border-color: #39947a;
+  outline: 2px solid rgb(57 148 122 / 12%);
+}
+
+.pos-customer__form-actions {
+  display: flex;
+  gap: 7px;
+  justify-content: flex-end;
+  margin-top: 2px;
+}
+
+.pos-customer__form-actions button {
+  border: 1px solid #dce4e1;
+  border-radius: 6px;
+  cursor: pointer;
+  font: inherit;
+  font-size: 10px;
+  font-weight: 600;
+  min-height: 30px;
+  padding: 0 9px;
+}
+
+.pos-customer__cancel {
+  background: #fff;
+  color: #64717e;
+}
+
+.pos-customer__save {
+  background: #176b53;
+  border-color: #176b53 !important;
+  color: #fff;
+}
+
+.pos-customer__new:focus-visible,
+.pos-customer__form-actions button:focus-visible {
+  outline: 2px solid rgb(57 148 122 / 35%);
+  outline-offset: 2px;
 }

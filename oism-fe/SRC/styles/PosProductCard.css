@@ -57,6 +57,7 @@
 
 .pos-product-card__details h3 {
   font-size: 14px;
+  font-weight: 650;
   line-height: 1.4;
   margin: 5px 0;
 }
@@ -74,6 +75,7 @@
 
 .pos-product-card__price {
   font-size: 13px;
+  font-weight: 700;
 }
 
 .pos-product-card__stock {
