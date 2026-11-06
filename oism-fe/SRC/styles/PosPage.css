@@ -71,101 +71,6 @@
   margin-top: 22px;
 }
 
-.pos-cart {
-  display: flex;
-  flex-direction: column;
-  padding: 24px;
-}
-
-.pos-cart__order {
-  align-items: center;
-  border-bottom: 1px solid #edf0f3;
-  border-top: 1px solid #edf0f3;
-  color: #84909d;
-  display: flex;
-  font-size: 12px;
-  justify-content: space-between;
-  margin-top: 20px;
-  padding: 14px 0;
-}
-
-.pos-cart__order strong {
-  color: #17212f;
-  font-weight: 600;
-}
-
-.pos-cart__empty {
-  align-items: center;
-  color: #84909d;
-  display: flex;
-  flex: 1;
-  flex-direction: column;
-  justify-content: center;
-  min-height: 190px;
-  text-align: center;
-}
-
-.pos-cart__empty-icon {
-  align-items: center;
-  border: 1px dashed #cbd4dc;
-  border-radius: 50%;
-  color: #84909d;
-  display: flex;
-  font-size: 24px;
-  height: 48px;
-  justify-content: center;
-  margin-bottom: 12px;
-  width: 48px;
-}
-
-.pos-cart__empty strong {
-  color: #394553;
-  font-size: 13px;
-}
-
-.pos-cart__empty > span:last-child {
-  font-size: 11px;
-  margin-top: 6px;
-}
-
-.pos-cart__summary {
-  border-top: 1px solid #edf0f3;
-  padding-top: 16px;
-}
-
-.pos-cart__summary > div {
-  color: #697684;
-  display: flex;
-  font-size: 12px;
-  justify-content: space-between;
-  margin-bottom: 12px;
-}
-
-.pos-cart__summary .pos-cart__total {
-  border-top: 1px solid #edf0f3;
-  color: #17212f;
-  font-size: 14px;
-  margin: 16px 0;
-  padding-top: 14px;
-}
-
-.pos-cart__checkout {
-  background: #176b53;
-  border: 0;
-  border-radius: 10px;
-  color: #fff;
-  font: inherit;
-  font-size: 14px;
-  font-weight: 700;
-  min-height: 48px;
-  width: 100%;
-}
-
-.pos-cart__checkout:disabled {
-  background: #d7dfdc;
-  color: #73817b;
-}
-
 @media (max-width: 1024px) and (min-width: 761px) {
   .pos-workspace {
     grid-template-columns: 200px minmax(0, 1fr);
@@ -177,8 +82,7 @@
     padding: 18px;
   }
 
-  .pos-products,
-  .pos-cart {
+  .pos-products {
     padding: 18px;
   }
 }
@@ -196,12 +100,7 @@
     padding: 14px;
   }
 
-  .pos-products,
-  .pos-cart {
+  .pos-products {
     padding: 18px;
-  }
-
-  .pos-cart {
-    min-height: 390px;
   }
 }
