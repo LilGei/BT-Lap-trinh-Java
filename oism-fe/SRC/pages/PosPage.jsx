@@ -1,41 +1,17 @@
+import { useState } from "react";
+import PosCategoryFilter from "../components/PosCategoryFilter";
 import PosHeader from "../components/PosHeader";
+import PosProductCard from "../components/PosProductCard";
+import PosProductSearch from "../components/PosProductSearch";
 import PosSidebar from "../components/PosSidebar";
 import "../styles/PosPage.css";
+import formatCurrency from "../utils/formatCurrency";
 import { mockProducts } from "../utils/mockData";
 
-const formatCurrency = (amount) =>
-  `${new Intl.NumberFormat("vi-VN").format(amount)} đ`;
-
-function ProductCard({ product }) {
-  const available = product.onHand - product.reserved;
-  const stockStatus =
-    available === 0
-      ? "pos-product-card__stock--empty"
-      : available <= product.lowStockThreshold
-        ? "pos-product-card__stock--low"
-        : "pos-product-card__stock--available";
-
-  return (
-    <article className="pos-product-card">
-      <div className="pos-product-card__image" aria-hidden="true">
-        {product.name.charAt(0)}
-      </div>
-      <div className="pos-product-card__details">
-        <span className="pos-product-card__category">{product.category}</span>
-        <h3>{product.name}</h3>
-        <span className="pos-product-card__sku">SKU: {product.sku}</span>
-      </div>
-      <div className="pos-product-card__footer">
-        <strong>{formatCurrency(product.price)}</strong>
-        <span className={`pos-product-card__stock ${stockStatus}`}>
-          Còn {available}
-        </span>
-      </div>
-    </article>
-  );
-}
-
 function PosPage() {
+  const [productSearch, setProductSearch] = useState("");
+  const [selectedCategory, setSelectedCategory] = useState("All Products");
+
   return (
     <div className="pos-page">
       <PosHeader />
@@ -53,9 +29,19 @@ function PosPage() {
               </span>
             </div>
 
+            <PosProductSearch
+              value={productSearch}
+              onChange={setProductSearch}
+            />
+
+            <PosCategoryFilter
+              selectedCategory={selectedCategory}
+              onCategoryChange={setSelectedCategory}
+            />
+
             <div className="pos-product-grid">
               {mockProducts.map((product) => (
-                <ProductCard key={product.id} product={product} />
+                <PosProductCard key={product.id} product={product} />
               ))}
             </div>
           </section>
