@@ -1,11 +1,13 @@
-import { Routes, Route, Navigate } from "react-router-dom";
+import { Routes, Route } from "react-router-dom";
 import ProductPage from "./pages/ProductPage";
+import PosPage from "./pages/PosPage";
 
 function App() {
   return (
     <Routes>
-      <Route path="/" element={<Navigate to="/products" replace />} />
+      <Route path="/" element={<PosPage />} />
       <Route path="/products" element={<ProductPage />} />
+      <Route path="/pos" element={<PosPage />} />
     </Routes>
   );
 }
