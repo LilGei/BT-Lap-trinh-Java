@@ -1,0 +1,139 @@
+.pos-page {
+  background: #f5f7f8;
+  color: #17212f;
+  display: flex;
+  flex-direction: column;
+  inset: 0;
+  overflow: hidden;
+  position: fixed;
+}
+
+.pos-workspace {
+  display: grid;
+  flex: 1;
+  grid-template-columns: 220px minmax(0, 1fr);
+  min-height: 0;
+}
+
+.pos-layout {
+  align-items: stretch;
+  display: grid;
+  height: 100%;
+  gap: 18px;
+  grid-template-columns: minmax(0, 1fr) 380px;
+  min-height: 0;
+  min-width: 0;
+  overflow: hidden;
+  padding: 24px;
+}
+
+.pos-products,
+.pos-cart {
+  background: #fff;
+  border: 1px solid #e8edf2;
+  border-radius: 16px;
+  box-sizing: border-box;
+  min-width: 0;
+}
+
+.pos-products {
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  overflow: hidden;
+  padding: 18px 24px 24px;
+}
+
+.pos-products__summary {
+  color: #84909d;
+  flex: 0 0 auto;
+  font-size: 11px;
+  margin-top: 12px;
+  text-align: right;
+}
+
+.pos-product-grid {
+  align-content: start;
+  display: grid;
+  flex: 1;
+  gap: 14px;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  grid-auto-rows: max-content;
+  margin-top: 4px;
+  min-height: 0;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  padding: 2px 3px 4px 0;
+}
+
+.pos-products__empty {
+  color: #84909d;
+  font-size: 13px;
+  grid-column: 1 / -1;
+  padding: 32px 12px;
+  text-align: center;
+}
+
+@media (max-width: 1200px) and (min-width: 1025px) {
+  .pos-product-grid {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 1024px) and (min-width: 761px) {
+  .pos-workspace {
+    grid-template-columns: 200px minmax(0, 1fr);
+  }
+
+  .pos-layout {
+    gap: 14px;
+    grid-template-columns: minmax(0, 1fr) 320px;
+    padding: 18px;
+  }
+
+  .pos-products {
+    padding: 18px;
+  }
+
+  .pos-product-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 760px) {
+  .pos-page {
+    inset: auto;
+    min-height: 100vh;
+    overflow: visible;
+    position: static;
+  }
+
+  .pos-workspace {
+    grid-template-columns: minmax(0, 1fr);
+    min-height: auto;
+    flex: initial;
+  }
+
+  .pos-layout {
+    gap: 14px;
+    grid-template-columns: minmax(0, 1fr);
+    height: auto;
+    min-height: 0;
+    overflow: visible;
+    padding: 14px;
+  }
+
+  .pos-products {
+    min-height: 420px;
+    overflow: visible;
+    padding: 18px;
+  }
+
+  .pos-product-grid {
+    flex: initial;
+    grid-auto-rows: max-content;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    overflow: visible;
+  }
+
+}

@@ -1,0 +1,45 @@
+.pos-category-filter {
+  display: flex;
+  gap: 8px;
+  margin-top: 16px;
+  overflow-x: auto;
+  padding-bottom: 4px;
+  scrollbar-width: thin;
+}
+
+.pos-category-filter__button {
+  background: #fff;
+  border: 1px solid #e3e9ee;
+  border-radius: 999px;
+  color: #64717e;
+  cursor: pointer;
+  flex: 0 0 auto;
+  font: inherit;
+  font-size: 12px;
+  min-height: 36px;
+  padding: 0 14px;
+  transition:
+    background-color 150ms ease,
+    border-color 150ms ease,
+    color 150ms ease;
+}
+
+.pos-category-filter__button:hover {
+  border-color: #9abdaf;
+  color: #176b53;
+}
+
+.pos-category-filter__button--active {
+  background: #176b53;
+  border-color: #176b53;
+  color: #fff;
+}
+
+.pos-category-filter__button--active:hover {
+  color: #fff;
+}
+
+.pos-category-filter__button:focus-visible {
+  outline: 3px solid rgb(57 148 122 / 25%);
+  outline-offset: 2px;
+}

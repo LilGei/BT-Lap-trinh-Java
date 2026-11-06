@@ -1,0 +1,148 @@
+.cart-item {
+  border-bottom: 1px solid #edf0f3;
+  display: flex;
+  gap: 12px;
+  padding: 14px 0;
+}
+
+.cart-item__image {
+  align-items: center;
+  background: #f3f6f5;
+  border-radius: 10px;
+  color: #176b53;
+  display: flex;
+  flex: 0 0 58px;
+  height: 58px;
+  justify-content: center;
+  overflow: hidden;
+}
+
+.cart-item__image img {
+  height: 100%;
+  object-fit: cover;
+  width: 100%;
+}
+
+.cart-item__image > span {
+  font-size: 24px;
+}
+
+.cart-item__content {
+  flex: 1;
+  min-width: 0;
+}
+
+.cart-item__details {
+  min-width: 0;
+}
+
+.cart-item__details h3 {
+  color: #293644;
+  font-size: 13px;
+  font-weight: 650;
+  line-height: 1.35;
+  margin: 0 0 5px;
+  display: -webkit-box;
+  overflow: hidden;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+}
+
+.cart-item__details > span {
+  color: #84909d;
+  font-size: 10px;
+}
+
+.cart-item__footer {
+  align-items: center;
+  display: flex;
+  gap: 8px;
+  margin-top: 10px;
+}
+
+.cart-item__actions {
+  align-items: flex-end;
+  display: flex;
+  flex: 0 0 auto;
+  flex-direction: column;
+  justify-content: space-between;
+  min-height: 58px;
+}
+
+.cart-item__price {
+  color: #17212f;
+  font-size: 14px;
+  font-weight: 700;
+  line-height: 1.2;
+  white-space: nowrap;
+}
+
+.cart-item__stock {
+  color: #84909d;
+  font-size: 9px;
+  white-space: nowrap;
+}
+
+.cart-item__quantity {
+  align-items: center;
+  border: 1px solid #e3e9ee;
+  border-radius: 6px;
+  display: flex;
+  min-height: 28px;
+}
+
+.cart-item__quantity button {
+  background: transparent;
+  border: 0;
+  color: #176b53;
+  cursor: pointer;
+  font: inherit;
+  font-size: 15px;
+  height: 27px;
+  width: 27px;
+}
+
+.cart-item__quantity button:disabled {
+  color: #c3cbd1;
+  cursor: not-allowed;
+}
+
+.cart-item__quantity > span {
+  font-size: 12px;
+  min-width: 18px;
+  text-align: center;
+}
+
+.cart-item__remove {
+  align-items: center;
+  background: transparent;
+  border: 0;
+  border-radius: 6px;
+  color: #98a2ad;
+  cursor: pointer;
+  display: inline-flex;
+  height: 24px;
+  justify-content: center;
+  padding: 3px;
+  width: 24px;
+}
+
+.cart-item__remove svg {
+  height: 16px;
+  stroke: currentColor;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-width: 1.7;
+  width: 16px;
+}
+
+.cart-item__remove:hover {
+  background: #fcebea;
+  color: #b43e37;
+}
+
+.cart-item__remove:focus-visible,
+.cart-item__quantity button:focus-visible {
+  outline: 2px solid rgb(57 148 122 / 35%);
+  outline-offset: 1px;
+}
