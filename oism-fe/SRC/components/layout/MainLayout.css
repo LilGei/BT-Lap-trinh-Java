@@ -1,0 +1,111 @@
+/* ===== FIXED APP LAYOUT ===== */
+
+.oism-app-layout {
+  display: flex;
+  width: 100%;
+  height: 100vh;
+  height: 100dvh;
+  min-height: 0;
+  overflow: hidden;
+  background: #f8fafc;
+}
+
+/* Sidebar luôn nằm trong chiều cao màn hình */
+.oism-sidebar {
+  flex: 0 0 240px;
+  width: 240px;
+  height: 100vh;
+  height: 100dvh;
+  min-height: 0;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+/* Chỉ khu vực danh sách menu được cuộn khi thiếu chỗ */
+.sidebar-navigation {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  overflow-x: hidden;
+}
+
+/* Cài đặt và Admin luôn nằm cuối sidebar */
+.sidebar-bottom {
+  flex-shrink: 0;
+  margin-top: auto;
+  background: #0f172a;
+}
+
+/* Khu vực nội dung */
+.oism-content {
+  flex: 1;
+  width: 0;
+  height: 100vh;
+  height: 100dvh;
+  min-width: 0;
+  min-height: 0;
+  overflow-x: hidden;
+  overflow-y: auto;
+  background: #f8fafc;
+}
+
+/* Thanh cuộn nội dung gọn hơn */
+.oism-content::-webkit-scrollbar,
+.sidebar-navigation::-webkit-scrollbar {
+  width: 6px;
+}
+
+.oism-content::-webkit-scrollbar-thumb,
+.sidebar-navigation::-webkit-scrollbar-thumb {
+  border-radius: 10px;
+  background: #cbd5e1;
+}
+
+.oism-content::-webkit-scrollbar-track,
+.sidebar-navigation::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+/* Tablet */
+@media (max-width: 1024px) {
+  .oism-sidebar {
+    flex-basis: 220px;
+    width: 220px;
+  }
+}
+
+/* Mobile: sidebar chuyển thành thanh điều hướng phía trên */
+@media (max-width: 768px) {
+  .oism-app-layout {
+    flex-direction: column;
+  }
+
+  .oism-sidebar {
+    flex: 0 0 auto;
+    width: 100%;
+    height: auto;
+    max-height: 42vh;
+    position: relative;
+  }
+
+  .sidebar-navigation {
+    flex: 1;
+    overflow-y: auto;
+  }
+
+  .sidebar-bottom {
+    position: relative;
+    margin-top: 8px;
+  }
+
+  .oism-content {
+    width: 100%;
+    height: auto;
+    flex: 1;
+    min-height: 0;
+    overflow-x: hidden;
+    overflow-y: auto;
+  }
+}
