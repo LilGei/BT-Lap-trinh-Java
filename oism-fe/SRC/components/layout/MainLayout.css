@@ -1,4 +1,19 @@
-/* ===== FIXED APP LAYOUT ===== */
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body,
+#root {
+  width: 100%;
+  min-height: 100%;
+  margin: 0;
+}
+
+body {
+  overflow: hidden;
+}
 
 .oism-app-layout {
   display: flex;
@@ -10,10 +25,11 @@
   background: #f8fafc;
 }
 
-/* Sidebar luôn nằm trong chiều cao màn hình */
+/* SIDEBAR */
+
 .oism-sidebar {
-  flex: 0 0 240px;
-  width: 240px;
+  flex: 0 0 260px;
+  width: 260px;
   height: 100vh;
   height: 100dvh;
   min-height: 0;
@@ -23,22 +39,26 @@
   overflow: hidden;
 }
 
-/* Chỉ khu vực danh sách menu được cuộn khi thiếu chỗ */
+/* KHU VỰC MENU */
+
 .sidebar-navigation {
   flex: 1;
   min-height: 0;
+  min-width: 0;
   overflow-y: auto;
   overflow-x: hidden;
 }
 
-/* Cài đặt và Admin luôn nằm cuối sidebar */
+/* PHẦN CÀI ĐẶT VÀ ADMIN */
+
 .sidebar-bottom {
   flex-shrink: 0;
   margin-top: auto;
   background: #0f172a;
 }
 
-/* Khu vực nội dung */
+/* NỘI DUNG BÊN PHẢI */
+
 .oism-content {
   flex: 1;
   width: 0;
@@ -51,7 +71,8 @@
   background: #f8fafc;
 }
 
-/* Thanh cuộn nội dung gọn hơn */
+/* SCROLLBAR */
+
 .oism-content::-webkit-scrollbar,
 .sidebar-navigation::-webkit-scrollbar {
   width: 6px;
@@ -68,42 +89,51 @@
   background: transparent;
 }
 
-/* Tablet */
+/* TABLET */
+
 @media (max-width: 1024px) {
   .oism-sidebar {
-    flex-basis: 220px;
-    width: 220px;
+    flex-basis: 240px;
+    width: 240px;
   }
 }
 
-/* Mobile: sidebar chuyển thành thanh điều hướng phía trên */
+/* MOBILE */
+
 @media (max-width: 768px) {
+  body {
+    overflow: auto;
+  }
+
   .oism-app-layout {
     flex-direction: column;
+    height: 100dvh;
   }
 
   .oism-sidebar {
     flex: 0 0 auto;
     width: 100%;
     height: auto;
-    max-height: 42vh;
+    max-height: 42dvh;
     position: relative;
   }
 
   .sidebar-navigation {
     flex: 1;
+    min-height: 0;
     overflow-y: auto;
   }
 
   .sidebar-bottom {
     position: relative;
+    flex-shrink: 0;
     margin-top: 8px;
   }
 
   .oism-content {
+    flex: 1;
     width: 100%;
     height: auto;
-    flex: 1;
     min-height: 0;
     overflow-x: hidden;
     overflow-y: auto;
