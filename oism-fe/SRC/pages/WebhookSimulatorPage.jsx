@@ -1,5 +1,5 @@
 import { useState } from "react";
-import "./WebhookSimulatorPage.css";
+import "../styles/pages/WebhookSimulatorPage.css";
 
 const initialPayload = {
   event: "order.created",

@@ -1,6 +1,6 @@
 
 import { useMemo, useState } from "react";
-import "./WarehousePage.css";
+import "../styles/pages/WarehousePage.css";
 
 const initialWarehouses = [
   {
