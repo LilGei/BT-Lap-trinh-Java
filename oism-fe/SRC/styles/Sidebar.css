@@ -1,0 +1,422 @@
+
+/* =====================================
+   OISM SIDEBAR
+===================================== */
+
+.oism-sidebar {
+  width: 260px;
+  min-width: 260px;
+  height: 100vh;
+  height: 100dvh;
+  flex-shrink: 0;
+
+  display: flex;
+  flex-direction: column;
+
+  overflow: hidden;
+
+  background: #0f172a;
+  color: #f8fafc;
+  font-family: "Inter", Arial, sans-serif;
+  box-sizing: border-box;
+}
+
+.oism-sidebar * {
+  box-sizing: border-box;
+}
+
+/* =====================================
+   BRAND
+===================================== */
+
+.sidebar-brand {
+  flex-shrink: 0;
+  padding: 15px 18px 14px;
+  border-bottom: 1px solid #263449;
+}
+
+.sidebar-brand h2 {
+  margin: 0;
+  color: #ffffff;
+  font-size: 23px;
+  line-height: 1.3;
+  font-weight: 700;
+  letter-spacing: 0.3px;
+}
+
+.sidebar-brand span {
+  display: block;
+  margin-top: 4px;
+  color: #94a3b8;
+  font-size: 9px;
+  font-weight: 600;
+  letter-spacing: 1px;
+}
+
+/* =====================================
+   NAVIGATION
+===================================== */
+
+.sidebar-navigation {
+  flex: 1;
+  min-height: 0;
+  min-width: 0;
+
+  padding: 7px 0;
+
+  overflow-x: hidden;
+  overflow-y: auto;
+
+  scrollbar-width: none;
+}
+
+.sidebar-navigation::-webkit-scrollbar {
+  display: none;
+}
+
+/* MENU GROUP */
+
+.sidebar-group {
+  width: 100%;
+  margin: 0 0 3px;
+}
+
+/* GROUP TITLE */
+
+.sidebar-group-title {
+  padding: 9px 15px 5px;
+
+  color: #8293ad;
+  font-size: 10px;
+  line-height: 1.3;
+  font-weight: 700;
+  letter-spacing: 0.65px;
+}
+
+/* =====================================
+   MENU ITEM
+===================================== */
+
+.sidebar-item {
+  display: flex;
+  align-items: center;
+  gap: 11px;
+
+  width: 100%;
+  min-height: 35px;
+
+  margin: 1px 0;
+  padding: 7px 14px;
+
+  border: none;
+  border-radius: 0;
+
+  background: transparent;
+  color: #cbd5e1;
+
+  font-family: inherit;
+  font-size: 12.5px;
+  font-weight: 500;
+  line-height: 1.4;
+  text-align: left;
+
+  cursor: pointer;
+
+  transition:
+    background 0.18s ease,
+    color 0.18s ease;
+}
+
+.sidebar-item span {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* HOVER */
+
+.sidebar-item:hover {
+  background: #1e293b;
+  color: #ffffff;
+}
+
+/* ACTIVE */
+
+.sidebar-item.active {
+  background: #2563eb;
+  color: #ffffff;
+  font-weight: 600;
+}
+
+.sidebar-item.active:hover {
+  background: #1d4ed8;
+}
+
+/* =====================================
+   ICON
+===================================== */
+
+.sidebar-icon {
+  display: block;
+
+  width: 17px;
+  height: 17px;
+
+  flex: 0 0 17px;
+
+  color: currentColor;
+}
+
+/* =====================================
+   BOTTOM AREA
+===================================== */
+
+.sidebar-bottom {
+  flex-shrink: 0;
+  margin-top: auto;
+
+  padding: 7px 0 5px;
+
+  border-top: 1px solid #263449;
+  background: #0f172a;
+}
+
+/* CÀI ĐẶT */
+
+.sidebar-bottom > .sidebar-item {
+  min-height: 35px;
+}
+
+/* =====================================
+   ADMIN USER
+===================================== */
+
+.sidebar-user {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+
+  min-height: 48px;
+  padding: 6px 13px;
+
+  cursor: pointer;
+}
+
+.sidebar-avatar {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  width: 34px;
+  height: 34px;
+
+  flex: 0 0 34px;
+
+  border-radius: 50%;
+  background: #334155;
+  color: #ffffff;
+}
+
+.sidebar-avatar .sidebar-icon {
+  width: 18px;
+  height: 18px;
+  flex: 0 0 18px;
+}
+
+.sidebar-user-info {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  min-width: 0;
+  gap: 3px;
+}
+
+.sidebar-user-info strong {
+  color: #f8fafc;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.sidebar-user-info span {
+  color: #94a3b8;
+  font-size: 10px;
+}
+
+/* MŨI TÊN ADMIN */
+
+.sidebar-user > .sidebar-icon {
+  width: 15px;
+  height: 15px;
+  flex: 0 0 15px;
+  color: #94a3b8;
+}
+
+/* =====================================
+   TABLET
+===================================== */
+
+@media (max-width: 1024px) {
+  .oism-sidebar {
+    width: 240px;
+    min-width: 240px;
+  }
+
+  .sidebar-item {
+    font-size: 12px;
+  }
+}
+
+/* =====================================
+   MOBILE
+===================================== */
+
+@media (max-width: 768px) {
+  .oism-sidebar {
+    width: 100%;
+    min-width: 0;
+    height: auto;
+    max-height: 42dvh;
+  }
+
+  .sidebar-navigation {
+    overflow-y: auto;
+  }
+}
+
+/* USER MENU */
+.sidebar-user-wrapper {
+  position: relative;
+}
+
+.sidebar-user {
+  width: 100%;
+  border: none;
+  background: transparent;
+  font-family: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+.sidebar-user:hover {
+  background: #1e293b;
+}
+
+.sidebar-user-menu {
+  position: absolute;
+  bottom: calc(100% + 5px);
+  left: 10px;
+  right: 10px;
+  padding: 5px;
+  background: #1e293b;
+  border: 1px solid #334155;
+  border-radius: 7px;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.25);
+  z-index: 20;
+}
+
+.sidebar-logout-button {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  padding: 10px;
+  border: none;
+  border-radius: 5px;
+  background: transparent;
+  color: #fca5a5;
+  font-family: inherit;
+  font-size: 12px;
+  text-align: left;
+  cursor: pointer;
+}
+
+.sidebar-logout-button:hover {
+  background: #7f1d1d;
+  color: #ffffff;
+}
+
+/* LOGOUT CONFIRMATION */
+.logout-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  background: rgba(15, 23, 42, 0.55);
+}
+
+.logout-dialog {
+  width: 100%;
+  max-width: 380px;
+  padding: 25px;
+  border-radius: 12px;
+  background: #ffffff;
+  color: #0f172a;
+  text-align: center;
+  box-shadow: 0 15px 40px rgba(0, 0, 0, 0.2);
+}
+
+.logout-dialog-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 48px;
+  height: 48px;
+  margin: 0 auto 15px;
+  border-radius: 50%;
+  background: #fee2e2;
+  color: #dc2626;
+}
+
+.logout-dialog-icon .sidebar-icon {
+  width: 23px;
+  height: 23px;
+}
+
+.logout-dialog h3 {
+  margin: 0 0 9px;
+  font-size: 17px;
+}
+
+.logout-dialog p {
+  margin: 0;
+  color: #64748b;
+  font-size: 13px;
+  line-height: 1.6;
+}
+
+.logout-dialog-actions {
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+  margin-top: 22px;
+}
+
+.logout-dialog-actions button {
+  min-width: 105px;
+  padding: 9px 15px;
+  border-radius: 6px;
+  font-family: inherit;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.logout-cancel {
+  border: 1px solid #cbd5e1;
+  background: #ffffff;
+  color: #334155;
+}
+
+.logout-confirm {
+  border: 1px solid #dc2626;
+  background: #dc2626;
+  color: #ffffff;
+}
+
+.logout-confirm:hover {
+  background: #b91c1c;
+}
