@@ -142,18 +142,8 @@ function MenuIcon({ name }) {
   );
 }
 
-function Sidebar({ currentPage, onNavigate, onLogout }) {
+function Sidebar({ currentPage, onNavigate }) {
   const [showUserMenu, setShowUserMenu] = useState(false);
-  const [showLogoutConfirm, setShowLogoutConfirm] = useState(false);
-
-  const handleLogout = () => {
-    setShowLogoutConfirm(false);
-    setShowUserMenu(false);
-
-    if (onLogout) {
-      onLogout();
-    }
-  };
 
   return (
     <aside className="oism-sidebar">
@@ -204,10 +194,7 @@ function Sidebar({ currentPage, onNavigate, onLogout }) {
               <button
                 type="button"
                 className="sidebar-logout-button"
-                onClick={() => {
-                  setShowUserMenu(false);
-                  setShowLogoutConfirm(true);
-                }}
+                onClick={() => {}}
               >
                 <MenuIcon name="logout" />
                 <span>Đăng xuất</span>
