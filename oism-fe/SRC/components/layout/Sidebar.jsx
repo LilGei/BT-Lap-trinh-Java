@@ -1,5 +1,5 @@
 
-import "./Sidebar.css";
+import "../../styles/components/Sidebar.css";
 
 const menuGroups = [
   {

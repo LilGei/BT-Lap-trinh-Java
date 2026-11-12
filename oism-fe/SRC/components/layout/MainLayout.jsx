@@ -1,6 +1,6 @@
 
 import Sidebar from "./Sidebar";
-import "./MainLayout.css";
+import "../../styles/components/MainLayout.css";
 
 function MainLayout({ currentPage, onNavigate, children }) {
   return (

@@ -1,0 +1,103 @@
+
+body, html { margin: 0; padding: 0; width: 100%; height: 100%; }
+#root { width: 100%; height: 100%; }
+.login-wrapper, .login-wrapper * { box-sizing: border-box; }
+
+.login-wrapper {
+  display: flex;
+  width: 100vw;
+  height: 100vh;
+  overflow: hidden;
+  font-family: 'Inter', sans-serif;
+}
+
+
+.login-left {
+  flex: 1.2;
+  padding: 40px 80px;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  background: #fff;
+}
+
+
+.logo-section { margin-bottom: 50px; }
+.uth-text { font-size: 26px; font-weight: 900; margin: 0; color: #000; }
+.workplace-text { font-size: 26px; font-weight: 900; margin: 0; color: #7b7dff; }
+
+.admin-login-link {
+  position: absolute;
+  top: 40px;
+  right: 60px;
+  color: #333;
+  text-decoration: none;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.login-content-box {
+  width: 100%;
+  max-width: 380px;
+  margin: auto;
+  text-align: center;
+}
+
+.welcome-text { font-size: 32px; font-weight: 800; margin-bottom: 10px; }
+.sub-text { color: #666; margin-bottom: 30px; }
+
+
+.input-group { position: relative; margin-bottom: 20px; }
+.input-icon-inner {
+  position: absolute;
+  left: 20px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: #aaa;
+}
+.input-group input {
+  width: 100%;
+  padding: 15px 15px 15px 55px;
+  border: 1px solid #eee;
+  border-radius: 15px; 
+  background: #f9f9f9;
+  outline: none;
+}
+
+.forgot-link-container { text-align: left; margin-bottom: 25px; }
+.forgot-link-container a { color: #7b7dff; text-decoration: none; font-size: 13px; }
+
+
+.login-btn-purple {
+  width: 180px;
+  padding: 12px;
+  background: #7b7dff;
+  color: #fff;
+  border: none;
+  border-radius: 25px;
+  font-size: 16px;
+  font-weight: 700;
+  cursor: pointer;
+  margin-bottom: 15px;
+}
+
+.reg-hint { font-size: 14px; color: #999; }
+.reg-hint a { color: #7b7dff; font-weight: 700; text-decoration: none; }
+
+
+.social-section-wrapper { margin-top: 40px; }
+.social-divider { display: flex; align-items: center; gap: 10px; color: #eee; margin-bottom: 20px; }
+.social-divider span { color: #ccc; font-size: 12px; }
+.social-divider::before, .social-divider::after { content: ""; flex: 1; height: 1px; background: #eee; }
+
+.social-icons-row { display: flex; justify-content: center; gap: 20px; }
+.s-circle { width: 45px; height: 45px; border-radius: 50%; border: none; color: #fff; display: flex; align-items: center; justify-content: center; font-size: 18px; }
+.s-red { background: #ea4335; }
+.s-black { background: #000; }
+.s-gmail { background: #fbbc05; }
+
+
+.login-right-side {
+  flex: 1;
+  background: linear-gradient(180deg, #1d12b1 0%, #a2a7ff 100%);
+}
