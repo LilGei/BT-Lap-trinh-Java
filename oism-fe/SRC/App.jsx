@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 
@@ -14,6 +15,7 @@ import WarehousePage from "./pages/WarehousePage";
 import InventoryAlertPage from "./pages/InventoryAlertPage";
 import ReportsPage from "./pages/ReportsPage";
 import OverviewPage from "./pages/OverviewPage";
+import LoginPage from "./pages/LoginPage";
 
 function ComingSoon({ title }) {
   return (
@@ -37,6 +39,19 @@ function ComingSoon({ title }) {
 
 function DashboardApp() {
   const [currentPage, setCurrentPage] = useState("overview");
+
+ 
+  const [isLoggedIn, setIsLoggedIn] = useState(true);
+
+  const handleLogin = () => {
+    setIsLoggedIn(true);
+    setCurrentPage("orders");
+  };
+
+  const handleLogout = () => {
+    setIsLoggedIn(false);
+    setCurrentPage("orders");
+  };
 
   const renderPage = () => {
     switch (currentPage) {
@@ -69,8 +84,16 @@ function DashboardApp() {
     }
   };
 
+  if (!isLoggedIn) {
+    return <LoginPage onLogin={handleLogin} />;
+  }
+
   return (
-    <MainLayout currentPage={currentPage} onNavigate={setCurrentPage}>
+    <MainLayout
+      currentPage={currentPage}
+      onNavigate={setCurrentPage}
+      onLogout={handleLogout}
+    >
       {renderPage()}
     </MainLayout>
   );
