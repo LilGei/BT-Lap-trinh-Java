@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 
 import MainLayout from "./components/layout/MainLayout";
@@ -8,6 +9,7 @@ import WarehousePage from "./pages/WarehousePage";
 import InventoryAlertPage from "./pages/InventoryAlertPage";
 import ReportsPage from "./pages/ReportsPage";
 import OverviewPage from "./pages/OverviewPage";
+import LoginPage from "./pages/LoginPage";
 
 function ComingSoon({ title }) {
   return (
@@ -31,6 +33,20 @@ function ComingSoon({ title }) {
 
 function App() {
   const [currentPage, setCurrentPage] = useState("orders");
+
+  // Tạm giữ đăng nhập mặc định để không làm thay đổi
+  // trải nghiệm mở ứng dụng hiện tại.
+  const [isLoggedIn, setIsLoggedIn] = useState(true);
+
+  const handleLogin = () => {
+    setIsLoggedIn(true);
+    setCurrentPage("orders");
+  };
+
+  const handleLogout = () => {
+    setIsLoggedIn(false);
+    setCurrentPage("orders");
+  };
 
   const renderPage = () => {
     switch (currentPage) {
@@ -75,10 +91,15 @@ function App() {
     }
   };
 
+  if (!isLoggedIn) {
+    return <LoginPage onLogin={handleLogin} />;
+  }
+
   return (
     <MainLayout
       currentPage={currentPage}
       onNavigate={setCurrentPage}
+      onLogout={handleLogout}
     >
       {renderPage()}
     </MainLayout>
