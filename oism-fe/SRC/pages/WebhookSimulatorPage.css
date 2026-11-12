@@ -1,9 +1,16 @@
 .webhook-page {
   width: 100%;
   min-height: 100%;
-  padding: 32px;
+  background: #f8fafc;
   color: #0f172a;
   font-family: "Inter", sans-serif;
+}
+
+.webhook-main {
+  width: 100%;
+  max-width: 1500px;
+  padding: 30px;
+  margin: 0 auto;
 }
 
 .webhook-header {
@@ -16,7 +23,6 @@
 
 .webhook-header h1 {
   margin: 0 0 8px;
-  color: #0f172a;
   font-size: 26px;
   font-weight: 700;
 }
@@ -25,23 +31,22 @@
   margin: 0;
   color: #64748b;
   font-size: 14px;
-  line-height: 1.6;
 }
 
 .webhook-badge {
-  flex-shrink: 0;
   padding: 7px 12px;
   border-radius: 20px;
   background: #dbeafe;
   color: #1d4ed8;
   font-size: 12px;
   font-weight: 600;
+  white-space: nowrap;
 }
 
 .webhook-notice {
   display: flex;
-  align-items: flex-start;
-  gap: 8px;
+  align-items: center;
+  gap: 10px;
   padding: 14px 16px;
   margin-bottom: 20px;
   border: 1px solid #bfdbfe;
@@ -49,22 +54,29 @@
   background: #eff6ff;
   color: #1e40af;
   font-size: 13px;
-  line-height: 1.6;
+  line-height: 1.5;
+}
+
+.webhook-notice span {
+  font-size: 17px;
+  font-weight: 700;
 }
 
 .webhook-card {
+  min-width: 0;
   padding: 24px;
   margin-bottom: 20px;
   border: 1px solid #e2e8f0;
   border-radius: 12px;
   background: #ffffff;
+  box-shadow: 0 2px 8px rgba(15, 23, 42, 0.03);
 }
 
 .webhook-card h2 {
   margin: 0 0 22px;
   color: #0f172a;
   font-size: 18px;
-  font-weight: 700;
+  font-weight: 600;
 }
 
 .webhook-field {
@@ -75,7 +87,7 @@
 }
 
 .webhook-field label {
-  color: #0f172a;
+  color: #334155;
   font-size: 14px;
   font-weight: 600;
 }
@@ -84,7 +96,6 @@
 .webhook-field select,
 .webhook-field textarea {
   width: 100%;
-  min-width: 0;
   padding: 11px 12px;
   border: 1px solid #cbd5e1;
   border-radius: 7px;
@@ -114,7 +125,6 @@
 .webhook-actions {
   display: flex;
   justify-content: flex-end;
-  flex-wrap: wrap;
   gap: 12px;
 }
 
@@ -126,7 +136,7 @@
   font-size: 14px;
   font-weight: 600;
   cursor: pointer;
-  transition: background 0.2s;
+  transition: background 0.2s ease;
 }
 
 .webhook-reset {
@@ -192,6 +202,7 @@
 .webhook-table {
   width: 100%;
   border-collapse: collapse;
+  white-space: nowrap;
   font-size: 13px;
 }
 
@@ -200,18 +211,13 @@
   background: #f1f5f9;
   color: #475569;
   text-align: left;
-  white-space: nowrap;
+  font-weight: 600;
 }
 
 .webhook-table td {
   padding: 14px 13px;
   border-bottom: 1px solid #e2e8f0;
   color: #334155;
-}
-
-.webhook-endpoint-cell {
-  max-width: 260px;
-  overflow-wrap: anywhere;
 }
 
 .webhook-status {
@@ -221,24 +227,19 @@
   background: #dcfce7;
   color: #15803d;
   font-weight: 600;
-  white-space: nowrap;
 }
 
 /* Tablet */
 @media (max-width: 1024px) {
-  .webhook-page {
+  .webhook-main {
     padding: 24px;
-  }
-
-  .webhook-card {
-    padding: 20px;
   }
 }
 
 /* Mobile */
 @media (max-width: 768px) {
-  .webhook-page {
-    padding: 18px 14px;
+  .webhook-main {
+    padding: 20px 14px;
   }
 
   .webhook-header {
@@ -264,10 +265,6 @@
   }
 
   .webhook-actions {
-    flex-direction: column-reverse;
-  }
-
-  .webhook-actions button {
-    width: 100%;
+    flex-wrap: wrap;
   }
 }

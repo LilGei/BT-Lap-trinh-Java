@@ -38,7 +38,7 @@ function WebhookSimulatorPage() {
       parsed.event = value;
       setPayload(JSON.stringify(parsed, null, 2));
     } catch {
-      // Giữ nguyên Payload nếu JSON đang được chỉnh sửa bị lỗi.
+      // Không ghi đè JSON khi nội dung đang chỉnh sửa bị lỗi.
     }
   };
 
@@ -97,148 +97,133 @@ function WebhookSimulatorPage() {
 
   return (
     <div className="webhook-page">
-      <header className="webhook-header">
-        <div>
-          <h1>Webhook Simulator</h1>
-          <p>
-            Kiểm tra và mô phỏng các sự kiện gửi Webhook trong hệ thống.
-          </p>
-        </div>
-
-        <span className="webhook-badge">Development</span>
-      </header>
-
-      <section className="webhook-notice">
-        <span>ⓘ</span>
-        Đây là chức năng mô phỏng Frontend. Chưa gửi request thật đến
-        Endpoint.
-      </section>
-
-      <section className="webhook-card">
-        <h2>Cấu hình Webhook</h2>
-
-        <div className="webhook-field">
-          <label htmlFor="webhook-event">Loại sự kiện</label>
-
-          <select
-            id="webhook-event"
-            value={event}
-            onChange={(e) => handleEventChange(e.target.value)}
-          >
-            {eventOptions.map((item) => (
-              <option key={item} value={item}>
-                {item}
-              </option>
-            ))}
-          </select>
-        </div>
-
-        <div className="webhook-field">
-          <label htmlFor="webhook-endpoint">Endpoint URL</label>
-
-          <input
-            id="webhook-endpoint"
-            type="url"
-            value={endpoint}
-            onChange={(e) => setEndpoint(e.target.value)}
-            placeholder="Nhập Endpoint URL..."
-          />
-        </div>
-
-        <div className="webhook-field">
-          <label htmlFor="webhook-payload">JSON Payload</label>
-
-          <textarea
-            id="webhook-payload"
-            value={payload}
-            onChange={(e) => setPayload(e.target.value)}
-            spellCheck="false"
-          />
-        </div>
-
-        <div className="webhook-actions">
-          <button
-            type="button"
-            className="webhook-reset"
-            onClick={handleReset}
-          >
-            Đặt lại
-          </button>
-
-          <button
-            type="button"
-            className="webhook-send"
-            onClick={handleSend}
-          >
-            Gửi thử Webhook
-          </button>
-        </div>
-      </section>
-
-      {result && (
-        <section className="webhook-card webhook-result">
-          <h2>Kết quả phản hồi</h2>
-
-          <div className="webhook-result-row">
-            <span>Trạng thái</span>
-            <strong className={result.success ? "success" : "error"}>
-              {result.success ? `HTTP ${result.status}` : "Thất bại"}
-            </strong>
+      <main className="webhook-main">
+        <header className="webhook-header">
+          <div>
+            <h1>Webhook Simulator</h1>
+            <p>
+              Kiểm tra và mô phỏng các sự kiện gửi Webhook trong hệ thống.
+            </p>
           </div>
 
-          <div className="webhook-result-row">
-            <span>Thông báo</span>
-            <strong>{result.message}</strong>
+          <span className="webhook-badge">Development</span>
+        </header>
+
+        <section className="webhook-notice">
+          <span>ⓘ</span>
+          Đây là chức năng mô phỏng Frontend. Chưa gửi request thật đến
+          Endpoint.
+        </section>
+
+        <section className="webhook-card">
+          <h2>Cấu hình Webhook</h2>
+
+          <div className="webhook-field">
+            <label>Loại sự kiện</label>
+            <select
+              value={event}
+              onChange={(e) => handleEventChange(e.target.value)}
+            >
+              {eventOptions.map((item) => (
+                <option key={item} value={item}>
+                  {item}
+                </option>
+              ))}
+            </select>
           </div>
 
-          {result.time && (
+          <div className="webhook-field">
+            <label>Endpoint URL</label>
+            <input
+              value={endpoint}
+              onChange={(e) => setEndpoint(e.target.value)}
+              placeholder="Nhập Endpoint URL..."
+            />
+          </div>
+
+          <div className="webhook-field">
+            <label>JSON Payload</label>
+            <textarea
+              value={payload}
+              onChange={(e) => setPayload(e.target.value)}
+              spellCheck="false"
+            />
+          </div>
+
+          <div className="webhook-actions">
+            <button className="webhook-reset" onClick={handleReset}>
+              Đặt lại
+            </button>
+
+            <button className="webhook-send" onClick={handleSend}>
+              Gửi thử Webhook
+            </button>
+          </div>
+        </section>
+
+        {result && (
+          <section className="webhook-card webhook-result">
+            <h2>Kết quả phản hồi</h2>
+
             <div className="webhook-result-row">
-              <span>Thời gian</span>
-              <strong>{result.time}</strong>
+              <span>Trạng thái</span>
+              <strong className={result.success ? "success" : "error"}>
+                {result.success ? `HTTP ${result.status}` : "Thất bại"}
+              </strong>
+            </div>
+
+            <div className="webhook-result-row">
+              <span>Thông báo</span>
+              <strong>{result.message}</strong>
+            </div>
+
+            {result.time && (
+              <div className="webhook-result-row">
+                <span>Thời gian</span>
+                <strong>{result.time}</strong>
+              </div>
+            )}
+          </section>
+        )}
+
+        <section className="webhook-card">
+          <h2>Lịch sử gửi Webhook</h2>
+
+          {history.length === 0 ? (
+            <div className="webhook-empty">
+              Chưa có lịch sử gửi Webhook.
+            </div>
+          ) : (
+            <div className="webhook-table-wrapper">
+              <table className="webhook-table">
+                <thead>
+                  <tr>
+                    <th>Sự kiện</th>
+                    <th>Endpoint</th>
+                    <th>Thời gian</th>
+                    <th>Trạng thái</th>
+                  </tr>
+                </thead>
+
+                <tbody>
+                  {history.map((item) => (
+                    <tr key={item.id}>
+                      <td>{item.event}</td>
+                      <td>{item.endpoint}</td>
+                      <td>{item.time}</td>
+                      <td>
+                        <span className="webhook-status">
+                          HTTP {item.status}
+                        </span>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
             </div>
           )}
         </section>
-      )}
-
-      <section className="webhook-card">
-        <h2>Lịch sử gửi Webhook</h2>
-
-        {history.length === 0 ? (
-          <div className="webhook-empty">
-            Chưa có lịch sử gửi Webhook.
-          </div>
-        ) : (
-          <div className="webhook-table-wrapper">
-            <table className="webhook-table">
-              <thead>
-                <tr>
-                  <th>Sự kiện</th>
-                  <th>Endpoint</th>
-                  <th>Thời gian</th>
-                  <th>Trạng thái</th>
-                </tr>
-              </thead>
-
-              <tbody>
-                {history.map((item) => (
-                  <tr key={item.id}>
-                    <td>{item.event}</td>
-                    <td className="webhook-endpoint-cell">
-                      {item.endpoint}
-                    </td>
-                    <td>{item.time}</td>
-                    <td>
-                      <span className="webhook-status">
-                        HTTP {item.status}
-                      </span>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        )}
-      </section>
+      </main>
     </div>
   );
 }

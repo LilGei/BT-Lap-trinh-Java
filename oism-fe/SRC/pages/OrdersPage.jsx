@@ -41,12 +41,29 @@ const formatDate = (date) => {
   return `${day}/${month}/${year}`;
 };
 
+const getToday = () => {
+  const today = new Date();
+  const year = today.getFullYear();
+  const month = String(today.getMonth() + 1).padStart(2, "0");
+  const day = String(today.getDate()).padStart(2, "0");
+
+  return `${year}-${month}-${day}`;
+};
+
 function OrdersPage() {
   const [orders, setOrders] = useState(initialOrders);
   const [selectedOrder, setSelectedOrder] = useState(null);
+
   const [keyword, setKeyword] = useState("");
   const [status, setStatus] = useState("Tất cả");
   const [dateFilter, setDateFilter] = useState("Tất cả");
+
+  const [showCreateModal, setShowCreateModal] = useState(false);
+  const [newOrder, setNewOrder] = useState({
+    channel: "POS",
+    date: getToday(),
+    amount: "",
+  });
 
   const filteredOrders = useMemo(() => {
     return orders.filter((order) => {
@@ -95,6 +112,102 @@ function OrdersPage() {
     },
   ];
 
+  // Xuất danh sách đơn hàng đang được hiển thị ra file CSV
+  const handleExport = () => {
+    if (filteredOrders.length === 0) {
+      alert("Không có đơn hàng để xuất báo cáo.");
+      return;
+    }
+
+    const headers = [
+      "STT",
+      "Mã đơn",
+      "Kênh bán",
+      "Ngày tạo",
+      "Tổng tiền",
+      "Trạng thái",
+    ];
+
+    const rows = filteredOrders.map((order, index) => [
+      index + 1,
+      order.id,
+      order.channel,
+      formatDate(order.date),
+      order.amount,
+      order.status,
+    ]);
+
+    const escapeCSV = (value) =>
+      `"${String(value).replace(/"/g, '""')}"`;
+
+    const csvContent = [
+      headers.map(escapeCSV).join(","),
+      ...rows.map((row) => row.map(escapeCSV).join(",")),
+    ].join("\n");
+
+    const blob = new Blob(
+      ["\uFEFF" + csvContent],
+      { type: "text/csv;charset=utf-8;" }
+    );
+
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+
+    link.href = url;
+    link.download = `Bao-cao-don-hang-${getToday()}.csv`;
+
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+
+    URL.revokeObjectURL(url);
+  };
+
+  // Mở form tạo đơn hàng
+  const handleOpenCreate = () => {
+    setNewOrder({
+      channel: "POS",
+      date: getToday(),
+      amount: "",
+    });
+
+    setShowCreateModal(true);
+  };
+
+  // Lưu đơn hàng mới
+  const handleCreateOrder = (e) => {
+    e.preventDefault();
+
+    const amount = Number(newOrder.amount);
+
+    if (!newOrder.date || !newOrder.channel || amount <= 0) {
+      alert("Vui lòng nhập đầy đủ thông tin đơn hàng hợp lệ.");
+      return;
+    }
+
+    const maxId = orders.reduce((max, order) => {
+      const number = Number(order.id.replace("ORD-", ""));
+      return Math.max(max, number);
+    }, 0);
+
+    const createdOrder = {
+      id: `ORD-${String(maxId + 1).padStart(5, "0")}`,
+      channel: newOrder.channel,
+      date: newOrder.date,
+      amount,
+      status: "Chờ xử lý",
+    };
+
+    setOrders((prevOrders) => [createdOrder, ...prevOrders]);
+    setShowCreateModal(false);
+
+    setKeyword("");
+    setStatus("Tất cả");
+    setDateFilter("Tất cả");
+
+    alert(`Đã tạo đơn hàng ${createdOrder.id} thành công!`);
+  };
+
   const handleApprove = () => {
     if (!selectedOrder) return;
 
@@ -135,6 +248,13 @@ function OrdersPage() {
     }));
   };
 
+  const getStatusClass = (orderStatus) => {
+    if (orderStatus === "Hoàn thành") return "completed";
+    if (orderStatus === "Chờ xử lý") return "pending";
+    if (orderStatus === "Đang giao") return "shipping";
+    return "cancelled";
+  };
+
   return (
     <div className="orders-page">
       <main className="orders-main">
@@ -147,8 +267,21 @@ function OrdersPage() {
           </div>
 
           <div className="orders-header-actions">
-            <button className="btn-export">Xuất báo cáo</button>
-            <button className="btn-create">Tạo đơn hàng</button>
+            <button
+              type="button"
+              className="btn-export"
+              onClick={handleExport}
+            >
+              Xuất báo cáo
+            </button>
+
+            <button
+              type="button"
+              className="btn-create"
+              onClick={handleOpenCreate}
+            >
+              Tạo đơn hàng
+            </button>
           </div>
         </header>
 
@@ -191,6 +324,7 @@ function OrdersPage() {
           </select>
 
           <button
+            type="button"
             className="btn-filter"
             onClick={() => {
               setKeyword("");
@@ -230,15 +364,9 @@ function OrdersPage() {
                     <td>{formatMoney(order.amount)}</td>
                     <td>
                       <span
-                        className={`status-badge ${
-                          order.status === "Hoàn thành"
-                            ? "completed"
-                            : order.status === "Chờ xử lý"
-                            ? "pending"
-                            : order.status === "Đang giao"
-                            ? "shipping"
-                            : "cancelled"
-                        }`}
+                        className={`status-badge ${getStatusClass(
+                          order.status
+                        )}`}
                       >
                         {order.status}
                       </span>
@@ -257,9 +385,110 @@ function OrdersPage() {
         </section>
       </main>
 
+      {/* Modal tạo đơn hàng */}
+      {showCreateModal && (
+        <div
+          className="order-modal-overlay"
+          onClick={() => setShowCreateModal(false)}
+        >
+          <div
+            className="order-modal"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <h2>Tạo đơn hàng mới</h2>
+
+            <form onSubmit={handleCreateOrder}>
+              <div className="order-form-group">
+                <label>Mã đơn hàng</label>
+                <input
+                  type="text"
+                  value={`ORD-${String(
+                    orders.reduce((max, order) => {
+                      return Math.max(
+                        max,
+                        Number(order.id.replace("ORD-", ""))
+                      );
+                    }, 0) + 1
+                  ).padStart(5, "0")}`}
+                  disabled
+                />
+              </div>
+
+              <div className="order-form-group">
+                <label>Kênh bán</label>
+                <select
+                  value={newOrder.channel}
+                  onChange={(e) =>
+                    setNewOrder({
+                      ...newOrder,
+                      channel: e.target.value,
+                    })
+                  }
+                >
+                  <option value="POS">POS</option>
+                  <option value="Website">Website</option>
+                </select>
+              </div>
+
+              <div className="order-form-group">
+                <label>Ngày tạo</label>
+                <input
+                  type="date"
+                  value={newOrder.date}
+                  onChange={(e) =>
+                    setNewOrder({
+                      ...newOrder,
+                      date: e.target.value,
+                    })
+                  }
+                  required
+                />
+              </div>
+
+              <div className="order-form-group">
+                <label>Tổng tiền (VNĐ)</label>
+                <input
+                  type="number"
+                  min="1"
+                  placeholder="Nhập tổng tiền đơn hàng"
+                  value={newOrder.amount}
+                  onChange={(e) =>
+                    setNewOrder({
+                      ...newOrder,
+                      amount: e.target.value,
+                    })
+                  }
+                  required
+                />
+              </div>
+
+              <div className="order-modal-actions">
+                <button type="submit" className="btn-approve">
+                  Tạo đơn hàng
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => setShowCreateModal(false)}
+                >
+                  Đóng
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* Modal chi tiết đơn hàng */}
       {selectedOrder && (
-        <div className="order-modal-overlay">
-          <div className="order-modal">
+        <div
+          className="order-modal-overlay"
+          onClick={() => setSelectedOrder(null)}
+        >
+          <div
+            className="order-modal"
+            onClick={(e) => e.stopPropagation()}
+          >
             <h2>Chi tiết đơn hàng</h2>
 
             <p>
@@ -288,6 +517,7 @@ function OrdersPage() {
               {selectedOrder.status === "Chờ xử lý" && (
                 <>
                   <button
+                    type="button"
                     className="btn-approve"
                     onClick={handleApprove}
                   >
@@ -295,6 +525,7 @@ function OrdersPage() {
                   </button>
 
                   <button
+                    type="button"
                     className="btn-cancel"
                     onClick={handleCancel}
                   >
@@ -304,13 +535,17 @@ function OrdersPage() {
               )}
 
               <button
+                type="button"
                 className="btn-print"
                 onClick={() => window.print()}
               >
                 In phiếu
               </button>
 
-              <button onClick={() => setSelectedOrder(null)}>
+              <button
+                type="button"
+                onClick={() => setSelectedOrder(null)}
+              >
                 Đóng
               </button>
             </div>
