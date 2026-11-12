@@ -1,5 +1,5 @@
 import { useMemo, useState } from "react";
-import "../styles/pages/InventoryAlertPage.css";
+import "../styles/InventoryAlertPage.css";
 
 const initialProducts = [
   {

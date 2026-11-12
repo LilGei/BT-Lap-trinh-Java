@@ -1,6 +1,6 @@
 
 import { useMemo, useState } from "react";
-import "../styles/pages/OverviewPage.css";
+import "../styles/OverviewPage.css";
 
 const revenueData = [
   { label: "T2", revenue: 35, orders: 18 },

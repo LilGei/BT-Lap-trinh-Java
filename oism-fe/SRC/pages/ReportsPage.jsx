@@ -1,5 +1,5 @@
 import { useMemo, useState } from "react";
-import "../styles/pages/ReportsPage.css";
+import "../styles/ReportsPage.css";
 
 const reportData = {
   "7": {
