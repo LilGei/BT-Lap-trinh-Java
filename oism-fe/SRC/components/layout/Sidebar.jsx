@@ -1,6 +1,6 @@
 
 import { useState } from "react";
-import "../../styles/components/Sidebar.css";
+import "../../styles/Sidebar.css";
 
 const menuGroups = [
   {
@@ -19,17 +19,22 @@ const menuGroups = [
     title: "KHO & TỒN KHO",
     items: [
       { id: "products", label: "Sản phẩm", icon: "package" },
+      { id: "brands", label: "Thương hiệu", icon: "package" },
+      { id: "categories", label: "Danh mục", icon: "grid" },
+      { id: "sku", label: "SKU", icon: "package" },
       { id: "warehouse", label: "Chi nhánh & Kho", icon: "warehouse" },
       { id: "import", label: "Nhập kho", icon: "import" },
       { id: "stocktake", label: "Kiểm kê", icon: "clipboard" },
       { id: "transfer", label: "Điều chuyển", icon: "transfer" },
+      { id: "ledger", label: "Sổ cái tồn kho", icon: "chart" },
       { id: "inventory-alert", label: "Cảnh báo tồn kho", icon: "alert" },
     ],
   },
   {
-    title: "BÁO CÁO",
+    title: "BÁO CÁO & CÔNG CỤ",
     items: [
       { id: "reports", label: "Doanh thu & Lợi nhuận", icon: "chart" },
+      { id: "ai-suggest", label: "AI Suggest", icon: "chart" },
     ],
   },
 ];
@@ -222,44 +227,7 @@ function Sidebar({ currentPage, onNavigate }) {
         </div>
       </div>
 
-      {showLogoutConfirm && (
-        <div
-          className="logout-overlay"
-          onClick={() => setShowLogoutConfirm(false)}
-        >
-          <div
-            className="logout-dialog"
-            onClick={(event) => event.stopPropagation()}
-          >
-            <div className="logout-dialog-icon">
-              <MenuIcon name="logout" />
-            </div>
 
-            <h3>Xác nhận đăng xuất</h3>
-            <p>
-              Bạn có chắc chắn muốn đăng xuất khỏi hệ thống OISM không?
-            </p>
-
-            <div className="logout-dialog-actions">
-              <button
-                type="button"
-                className="logout-cancel"
-                onClick={() => setShowLogoutConfirm(false)}
-              >
-                Hủy
-              </button>
-
-              <button
-                type="button"
-                className="logout-confirm"
-                onClick={handleLogout}
-              >
-                Đăng xuất
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
     </aside>
   );
 }
