@@ -1,17 +1,19 @@
 import { useState } from "react";
-import "./App.css";
 
 import MainLayout from "./components/layout/MainLayout";
 
 import OrdersPage from "./pages/OrdersPage";
 import WebhookSimulatorPage from "./pages/WebhookSimulatorPage";
 import WarehousePage from "./pages/WarehousePage";
+import InventoryAlertPage from "./pages/InventoryAlertPage";
+import ReportsPage from "./pages/ReportsPage";
+import OverviewPage from "./pages/OverviewPage";
 
 function ComingSoon({ title }) {
   return (
     <div
       style={{
-        minHeight: "100%",
+        minHeight: "60vh",
         display: "flex",
         flexDirection: "column",
         justifyContent: "center",
@@ -41,8 +43,14 @@ function App() {
       case "warehouse":
         return <WarehousePage />;
 
+      case "inventory-alert":
+        return <InventoryAlertPage />;
+
+      case "reports":
+        return <ReportsPage />;
+
       case "overview":
-        return <ComingSoon title="Tổng quan hệ thống" />;
+        return <OverviewPage />;
 
       case "pos":
         return <ComingSoon title="Bán hàng POS" />;
@@ -58,12 +66,6 @@ function App() {
 
       case "transfer":
         return <ComingSoon title="Điều chuyển" />;
-
-      case "inventory-alert":
-        return <ComingSoon title="Cảnh báo tồn kho" />;
-
-      case "reports":
-        return <ComingSoon title="Doanh thu & Lợi nhuận" />;
 
       case "settings":
         return <ComingSoon title="Cài đặt" />;
