@@ -1,12 +1,11 @@
 
-import "./Sidebar.css";
+import { useState } from "react";
+import "../../styles/components/Sidebar.css";
 
 const menuGroups = [
   {
     title: "",
-    items: [
-      { id: "overview", label: "Tổng quan", icon: "grid" },
-    ],
+    items: [{ id: "overview", label: "Tổng quan", icon: "grid" }],
   },
   {
     title: "QUẢN LÝ BÁN HÀNG",
@@ -90,9 +89,7 @@ const iconPaths = {
     </>
   ),
   transfer: (
-    <>
-      <path d="M4 7h15l-3-3M20 17H5l3 3" />
-    </>
+    <path d="M4 7h15l-3-3M20 17H5l3 3" />
   ),
   alert: (
     <>
@@ -119,6 +116,13 @@ const iconPaths = {
     </>
   ),
   chevron: <path d="m7 10 5 5 5-5" />,
+  logout: (
+    <>
+      <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
+      <path d="M16 17l5-5-5-5" />
+      <path d="M21 12H9" />
+    </>
+  ),
 };
 
 function MenuIcon({ name }) {
@@ -138,7 +142,19 @@ function MenuIcon({ name }) {
   );
 }
 
-function Sidebar({ currentPage, onNavigate }) {
+function Sidebar({ currentPage, onNavigate, onLogout }) {
+  const [showUserMenu, setShowUserMenu] = useState(false);
+  const [showLogoutConfirm, setShowLogoutConfirm] = useState(false);
+
+  const handleLogout = () => {
+    setShowLogoutConfirm(false);
+    setShowUserMenu(false);
+
+    if (onLogout) {
+      onLogout();
+    }
+  };
+
   return (
     <aside className="oism-sidebar">
       <div className="sidebar-brand">
@@ -182,19 +198,81 @@ function Sidebar({ currentPage, onNavigate }) {
           <span>Cài đặt</span>
         </button>
 
-        <div className="sidebar-user">
-          <div className="sidebar-avatar">
-            <MenuIcon name="user" />
-          </div>
+        <div className="sidebar-user-wrapper">
+          {showUserMenu && (
+            <div className="sidebar-user-menu">
+              <button
+                type="button"
+                className="sidebar-logout-button"
+                onClick={() => {
+                  setShowUserMenu(false);
+                  setShowLogoutConfirm(true);
+                }}
+              >
+                <MenuIcon name="logout" />
+                <span>Đăng xuất</span>
+              </button>
+            </div>
+          )}
 
-          <div className="sidebar-user-info">
-            <strong>Admin</strong>
-            <span>Quản trị viên</span>
-          </div>
+          <button
+            type="button"
+            className="sidebar-user"
+            onClick={() => setShowUserMenu(!showUserMenu)}
+            aria-expanded={showUserMenu}
+          >
+            <div className="sidebar-avatar">
+              <MenuIcon name="user" />
+            </div>
 
-          <MenuIcon name="chevron" />
+            <div className="sidebar-user-info">
+              <strong>Admin</strong>
+              <span>Quản trị viên</span>
+            </div>
+
+            <MenuIcon name="chevron" />
+          </button>
         </div>
       </div>
+
+      {showLogoutConfirm && (
+        <div
+          className="logout-overlay"
+          onClick={() => setShowLogoutConfirm(false)}
+        >
+          <div
+            className="logout-dialog"
+            onClick={(event) => event.stopPropagation()}
+          >
+            <div className="logout-dialog-icon">
+              <MenuIcon name="logout" />
+            </div>
+
+            <h3>Xác nhận đăng xuất</h3>
+            <p>
+              Bạn có chắc chắn muốn đăng xuất khỏi hệ thống OISM không?
+            </p>
+
+            <div className="logout-dialog-actions">
+              <button
+                type="button"
+                className="logout-cancel"
+                onClick={() => setShowLogoutConfirm(false)}
+              >
+                Hủy
+              </button>
+
+              <button
+                type="button"
+                className="logout-confirm"
+                onClick={handleLogout}
+              >
+                Đăng xuất
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </aside>
   );
 }

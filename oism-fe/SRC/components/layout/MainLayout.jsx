@@ -1,13 +1,14 @@
 
 import Sidebar from "./Sidebar";
-import "./MainLayout.css";
+import "../../styles/components/MainLayout.css";
 
-function MainLayout({ currentPage, onNavigate, children }) {
+function MainLayout({ currentPage, onNavigate, onLogout, children }) {
   return (
     <div className="oism-app-layout">
       <Sidebar
         currentPage={currentPage}
         onNavigate={onNavigate}
+        onLogout={onLogout}
       />
 
       <main className="oism-content">
