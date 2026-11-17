@@ -12,12 +12,20 @@
 }
 
 .pos-product-area,
-.pos-cart-area {
+.cart-container {
   min-width: 0;
   min-height: 0;
-  border: 1px solid #e2e8f0;
   border-radius: 12px;
   background: #fff;
+}
+
+.pos-product-area {
+  border: 1px solid #e2e8f0;
+}
+
+.cart-container {
+  border-left: 1px solid #e5e7eb;
+  box-shadow: -4px 0 15px rgba(0, 0, 0, 0.03);
 }
 
 @media (max-width: 760px) {

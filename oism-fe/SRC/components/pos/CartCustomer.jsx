@@ -51,7 +51,10 @@ function CartCustomer({ onCustomerChange }) {
   };
 
   return (
-    <section className="pos-customer" aria-label="Customer">
+    <section
+      className="pos-customer cart-customer-section"
+      aria-label="Customer"
+    >
       <div className="pos-customer-heading">
         <h3>Customer</h3>
         <button

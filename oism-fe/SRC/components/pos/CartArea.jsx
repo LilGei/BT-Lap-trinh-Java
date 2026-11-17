@@ -4,13 +4,18 @@ import CartCustomer from "./CartCustomer";
 import formatMoney from "./formatMoney";
 import "../../styles/CartArea.css";
 
+const createMockImage = (emoji, background) =>
+  `data:image/svg+xml,${encodeURIComponent(
+    `<svg xmlns="http://www.w3.org/2000/svg" width="96" height="96" viewBox="0 0 96 96"><rect width="96" height="96" rx="12" fill="${background}"/><text x="48" y="52" font-size="54" text-anchor="middle" dominant-baseline="central">${emoji}</text></svg>`
+  )}`;
+
 const initialCartItems = [
   {
     id: 1,
     name: "Áo thun nam Basic",
     sku: "AT-001-M",
     price: 150000,
-    image: "👕",
+    image: createMockImage("👕", "#dbeafe"),
     onHand: 22,
     reserved: 3,
     quantity: 2,
@@ -20,7 +25,7 @@ const initialCartItems = [
     name: "Quần jean nữ",
     sku: "QJ-002-32",
     price: 350000,
-    image: "👖",
+    image: createMockImage("👖", "#ede9fe"),
     onHand: 8,
     reserved: 3,
     quantity: 1,
@@ -30,14 +35,14 @@ const initialCartItems = [
     name: "Chuột không dây",
     sku: "SKU-005",
     price: 220000,
-    image: "🖱",
+    image: createMockImage("🖱", "#e2e8f0"),
     onHand: 15,
     reserved: 0,
     quantity: 1,
   },
 ];
 
-function CartArea() {
+function CartPanel() {
   const [cartItems, setCartItems] = useState(initialCartItems);
   const [stockMessage, setStockMessage] = useState("");
   const [selectedCustomer, setSelectedCustomer] = useState({
@@ -113,101 +118,95 @@ function CartArea() {
   };
 
   return (
-    <section className="pos-cart-area" aria-label="Giỏ hàng">
-      <header className="pos-cart-header">
-        <div className="pos-cart-heading">
-          <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
-            <path d="M3 4h2l2.4 11.5h11.3L21 8H6.1" />
-            <circle cx="9.5" cy="19" r="1.3" />
-            <circle cx="17.5" cy="19" r="1.3" />
-          </svg>
-          <h2 className="pos-cart-title">Giỏ hàng</h2>
-        </div>
+    <section className="cart-container" aria-label="Giỏ hàng">
+      <header className="cart-panel-header">
+        <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+          <path d="M3 4h2l2.4 11.5h11.3L21 8H6.1" />
+          <circle cx="9.5" cy="19" r="1.3" />
+          <circle cx="17.5" cy="19" r="1.3" />
+        </svg>
+        <h2>Giỏ hàng</h2>
       </header>
 
       <CartCustomer onCustomerChange={handleCustomerChange} />
 
-      <div className="pos-cart-items" aria-label="Danh sách sản phẩm trong giỏ">
-        {cartItems.map((item) => (
-          <article className="pos-cart-item" key={item.id}>
-            <div className="pos-cart-item-image" aria-hidden="true">
-              {item.image}
-            </div>
-            <div className="pos-cart-item-content">
-              <div className="pos-cart-item-details">
-                <div className="pos-cart-item-title">
-                  <h3>{item.name}</h3>
-                  <p>{item.sku}</p>
-                </div>
-                <strong className="pos-cart-item-price">
+      <section className="cart-items-section" aria-label="Sản phẩm trong giỏ">
+        <h3 className="cart-items-heading">Cart Items</h3>
+        <div className="cart-items-list">
+          {cartItems.map((item) => (
+            <article className="cart-item" key={item.id}>
+              <img className="cart-item-image" src={item.image} alt="" />
+              <div className="cart-item-info">
+                <h4>{item.name}</h4>
+                <span>{item.sku}</span>
+              </div>
+              <div className="cart-item-actions">
+                <strong className="cart-item-price">
                   {formatMoney(item.price)}
                 </strong>
+                <div className="cart-item-controls">
+                  <button
+                    type="button"
+                    className="cart-quantity-button"
+                    onClick={() => changeQuantity(item.id, -1)}
+                    disabled={item.quantity <= 1}
+                    aria-label={`Giảm số lượng ${item.name}`}
+                  >
+                    −
+                  </button>
+                  <span className="cart-item-quantity" aria-live="polite">
+                    {item.quantity}
+                  </span>
+                  <button
+                    type="button"
+                    className="cart-quantity-button"
+                    onClick={() => changeQuantity(item.id, 1)}
+                    aria-label={`Tăng số lượng ${item.name}`}
+                  >
+                    +
+                  </button>
+                  <button
+                    type="button"
+                    className="cart-remove-button"
+                    onClick={() => removeCartItem(item.id)}
+                    aria-label={`Xóa ${item.name} khỏi giỏ hàng`}
+                    title="Xóa sản phẩm"
+                  >
+                    <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                      <path d="M4 7h16M10 11v6M14 11v6M5 7l1 14h12l1-14M9 7V4h6v3" />
+                    </svg>
+                  </button>
+                </div>
               </div>
-              <div className="pos-cart-item-footer">
-                <button
-                  type="button"
-                  className="pos-quantity-button"
-                  onClick={() => changeQuantity(item.id, -1)}
-                  disabled={item.quantity <= 1}
-                  aria-label={`Giảm số lượng ${item.name}`}
-                >
-                  −
-                </button>
-                <span className="pos-cart-item-quantity" aria-live="polite">
-                  {item.quantity}
-                </span>
-                <button
-                  type="button"
-                  className="pos-quantity-button"
-                  onClick={() => changeQuantity(item.id, 1)}
-                  aria-label={`Tăng số lượng ${item.name}`}
-                >
-                  +
-                </button>
-                <button
-                  type="button"
-                  className="pos-remove-cart-item"
-                  onClick={() => removeCartItem(item.id)}
-                  aria-label={`Xóa ${item.name} khỏi giỏ hàng`}
-                  title="Xóa sản phẩm"
-                >
-                  <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
-                    <path d="M4 7h16M10 11v6M14 11v6M5 7l1 14h12l1-14M9 7V4h6v3" />
-                  </svg>
-                </button>
-              </div>
+            </article>
+          ))}
+          {cartItems.length === 0 && (
+            <div className="cart-empty">
+              <strong>Chưa có sản phẩm</strong>
+              <p>Chọn sản phẩm để thêm vào giỏ hàng.</p>
             </div>
-          </article>
-        ))}
-        {cartItems.length === 0 && (
-          <div className="pos-cart-empty">
-            <span className="pos-cart-empty-icon" aria-hidden="true">
-              +
-            </span>
-            <strong>Chưa có sản phẩm</strong>
-            <p>Chọn sản phẩm để thêm vào giỏ hàng.</p>
-          </div>
+          )}
+        </div>
+        {stockMessage && (
+          <p className="cart-stock-message" role="alert">
+            {stockMessage}
+          </p>
         )}
-      </div>
-      {stockMessage && (
-        <p className="pos-stock-message" role="alert">
-          {stockMessage}
-        </p>
-      )}
+      </section>
 
-      <div className="pos-cart-summary">
-        <div>
+      <section className="cart-summary-section" aria-label="Tóm tắt hóa đơn">
+        <div className="cart-summary-row">
           <span>Tạm tính</span>
           <strong>{formatMoney(subtotal)}</strong>
         </div>
-        <div>
+        <div className="cart-summary-row">
           <span>VAT (10%)</span>
           <strong>{formatMoney(vat)}</strong>
         </div>
-        <div className="pos-cart-discount-row">
+        <div className="cart-summary-row cart-discount-row">
           <span>Giảm giá</span>
           {discountApplied ? (
-            <strong className="pos-discount-applied">
+            <strong className="cart-discount-applied">
               −{formatMoney(discount)}
               <button
                 type="button"
@@ -222,7 +221,7 @@ function CartArea() {
           ) : (
             <button
               type="button"
-              className="pos-discount-trigger"
+              className="cart-discount-trigger"
               onClick={() => {
                 setShowDiscountInput((isOpen) => !isOpen);
                 setDiscountError("");
@@ -234,7 +233,7 @@ function CartArea() {
           )}
         </div>
         {showDiscountInput && (
-          <form className="pos-discount-form" onSubmit={applyDiscountCode}>
+          <form className="cart-discount-form" onSubmit={applyDiscountCode}>
             <input
               type="text"
               value={discountCode}
@@ -245,25 +244,25 @@ function CartArea() {
             />
             <button type="submit">Áp dụng</button>
             {discountError && (
-              <p className="pos-discount-error" role="alert">
+              <p className="cart-discount-error" role="alert">
                 {discountError}
               </p>
             )}
           </form>
         )}
-        <div className="pos-cart-total">
+        <div className="cart-total-row">
           <span>Tổng cộng</span>
           <strong>{formatMoney(total)}</strong>
         </div>
         <button
           type="button"
-          className="pos-checkout-button"
+          className="btn-checkout"
           disabled={cartItems.length === 0}
           onClick={() => setCheckoutOpen(true)}
         >
           Thanh toán
         </button>
-      </div>
+      </section>
 
       {checkoutOpen && (
         <CartCheckoutModal
@@ -280,4 +279,4 @@ function CartArea() {
   );
 }
 
-export default CartArea;
+export default CartPanel;

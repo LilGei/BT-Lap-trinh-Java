@@ -2,7 +2,9 @@
   display: grid;
   flex: 0 0 auto;
   gap: 5px;
-  margin-top: 8px;
+  margin-top: 0;
+  padding: 16px 20px;
+  border-bottom: 1px solid #f1f5f9;
 }
 
 .pos-customer-heading {
