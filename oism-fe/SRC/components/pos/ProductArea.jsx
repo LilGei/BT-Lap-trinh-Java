@@ -1,4 +1,5 @@
 import { useRef, useState } from "react";
+import "../../styles/ProductArea.css";
 
 const products = [
   {
@@ -93,15 +94,7 @@ function ProductArea() {
   });
 
   return (
-    <section className="pos-product-area" aria-labelledby="pos-products-title">
-      <header className="pos-section-header">
-        <div>
-          <h1 id="pos-products-title">Sản phẩm</h1>
-          <p>Chọn sản phẩm để bắt đầu tạo đơn hàng.</p>
-        </div>
-        <span className="pos-product-count">{filteredProducts.length} sản phẩm</span>
-      </header>
-
+    <section className="pos-product-area" aria-label="Danh sách sản phẩm">
       <div className="pos-search" role="search">
         <span aria-hidden="true">⌕</span>
         <input
