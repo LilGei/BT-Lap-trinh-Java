@@ -15,7 +15,8 @@ import WarehousePage from "./pages/WarehousePage";
 import InventoryAlertPage from "./pages/InventoryAlertPage";
 import ReportsPage from "./pages/ReportsPage";
 import OverviewPage from "./pages/OverviewPage";
-import LoginPage from "./pages/LoginPage";
+import PosPage from "./pages/PosPage";
+//import LoginPage from "./pages/LoginPage";
 
 function ComingSoon({ title }) {
   return (
@@ -68,7 +69,7 @@ function DashboardApp() {
       case "reports":
         return <ReportsPage />;
       case "pos":
-        return <ComingSoon title="Bán hàng POS" />;
+        return <PosPage />;
       case "products":
         return <ComingSoon title="Quản lý sản phẩm" />;
       case "import":
