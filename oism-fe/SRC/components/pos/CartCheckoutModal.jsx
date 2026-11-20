@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import formatMoney from "./formatMoney";
 import "../../styles/CartCheckoutModal.css";
 
@@ -9,6 +9,8 @@ function CartCheckoutModal({
   discount,
   total,
   selectedCustomer,
+  shopInfo,
+  onPaymentComplete,
   onClose,
 }) {
   const [checkoutStatus, setCheckoutStatus] = useState("payment");
@@ -17,6 +19,15 @@ function CartCheckoutModal({
   const [orderNumber, setOrderNumber] = useState("");
 
   const cashReceivedAmount = Number(cashReceived) || 0;
+  const canConfirmCash =
+    cashReceived.trim() !== "" &&
+    Number.isFinite(cashReceivedAmount) &&
+    cashReceivedAmount >= total;
+
+  const handleClose = useCallback(
+    () => onClose(checkoutStatus === "complete"),
+    [checkoutStatus, onClose]
+  );
 
   useEffect(() => {
     const handleKeyDown = (event) => {
@@ -25,14 +36,33 @@ function CartCheckoutModal({
 
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
-  }, [checkoutStatus, onClose]);
-
-  const handleClose = () => {
-    onClose(checkoutStatus === "complete");
-  };
+  }, [handleClose]);
 
   const confirmPayment = () => {
-    setOrderNumber(`POS-${Date.now().toString().slice(-6)}`);
+    const completedAt = new Date();
+    const completedOrderNumber = `POS-${completedAt.getTime()}`;
+
+    onPaymentComplete({
+      id: completedOrderNumber,
+      createdAt: completedAt.toISOString(),
+      customer: {
+        name: selectedCustomer.name,
+        phone: selectedCustomer.phone,
+      },
+      items: items.map(({ id, name, sku, price, quantity }) => ({
+        id,
+        name,
+        sku,
+        price,
+        quantity,
+      })),
+      subtotal,
+      vat,
+      discount,
+      total,
+      paymentMethod,
+    });
+    setOrderNumber(completedOrderNumber);
     setCheckoutStatus("complete");
   };
 
@@ -137,6 +167,30 @@ function CartCheckoutModal({
                     />
                     <span>đ</span>
                   </div>
+                  <div
+                    className="pos-cash-quick-amounts"
+                    aria-label="Số tiền gợi ý"
+                  >
+                    {[
+                      { label: "100k", amount: 100000 },
+                      { label: "200k", amount: 200000 },
+                      { label: "500k", amount: 500000 },
+                      { label: "Đủ tiền", amount: total },
+                    ].map(({ label, amount }) => (
+                      <button
+                        type="button"
+                        key={label}
+                        onClick={() => setCashReceived(String(amount))}
+                        aria-label={
+                          label === "Đủ tiền"
+                            ? `Điền đủ ${formatMoney(total)}`
+                            : `Điền ${label}`
+                        }
+                      >
+                        {label}
+                      </button>
+                    ))}
+                  </div>
                   <div className="pos-cash-change">
                     <span>Tiền thừa</span>
                     <strong>
@@ -195,9 +249,7 @@ function CartCheckoutModal({
               <button
                 type="button"
                 className="pos-checkout-confirm"
-                disabled={
-                  paymentMethod === "cash" && cashReceivedAmount < total
-                }
+                disabled={paymentMethod === "cash" && !canConfirmCash}
                 onClick={confirmPayment}
               >
                 Xác nhận thanh toán
@@ -213,8 +265,20 @@ function CartCheckoutModal({
             </header>
             <div className="pos-receipt">
               <div className="pos-receipt-brand">
-                <strong>OISM POS</strong>
+                <strong>{shopInfo.name || "OISM POS"}</strong>
                 <span>HÓA ĐƠN BÁN HÀNG</span>
+                {shopInfo.address && (
+                  <small className="pos-receipt-shop-detail">
+                    {shopInfo.address}
+                  </small>
+                )}
+                {(shopInfo.phone || shopInfo.email) && (
+                  <small className="pos-receipt-shop-detail">
+                    {[shopInfo.phone, shopInfo.email]
+                      .filter(Boolean)
+                      .join(" · ")}
+                  </small>
+                )}
               </div>
               <div className="pos-receipt-meta">
                 <span>Mã đơn</span>

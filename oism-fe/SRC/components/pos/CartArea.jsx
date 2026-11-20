@@ -1,49 +1,15 @@
-import { useCallback, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import CartCheckoutModal from "./CartCheckoutModal";
 import CartCustomer from "./CartCustomer";
 import formatMoney from "./formatMoney";
 import "../../styles/CartArea.css";
 
-const createMockImage = (emoji, background) =>
-  `data:image/svg+xml,${encodeURIComponent(
-    `<svg xmlns="http://www.w3.org/2000/svg" width="96" height="96" viewBox="0 0 96 96"><rect width="96" height="96" rx="12" fill="${background}"/><text x="48" y="52" font-size="54" text-anchor="middle" dominant-baseline="central">${emoji}</text></svg>`
-  )}`;
-
-const initialCartItems = [
-  {
-    id: 1,
-    name: "Áo thun nam Basic",
-    sku: "AT-001-M",
-    price: 150000,
-    image: createMockImage("👕", "#dbeafe"),
-    onHand: 22,
-    reserved: 3,
-    quantity: 2,
-  },
-  {
-    id: 2,
-    name: "Quần jean nữ",
-    sku: "QJ-002-32",
-    price: 350000,
-    image: createMockImage("👖", "#ede9fe"),
-    onHand: 8,
-    reserved: 3,
-    quantity: 1,
-  },
-  {
-    id: 5,
-    name: "Chuột không dây",
-    sku: "SKU-005",
-    price: 220000,
-    image: createMockImage("🖱", "#e2e8f0"),
-    onHand: 15,
-    reserved: 0,
-    quantity: 1,
-  },
-];
-
-function CartPanel() {
-  const [cartItems, setCartItems] = useState(initialCartItems);
+function CartArea({
+  cartItems,
+  setCartItems,
+  onPaymentComplete,
+  shopInfo,
+}) {
   const [stockMessage, setStockMessage] = useState("");
   const [selectedCustomer, setSelectedCustomer] = useState({
     id: "walk-in",
@@ -63,6 +29,16 @@ function CartPanel() {
   const vat = Math.round(subtotal * 0.1);
   const discount = discountApplied ? Math.round(subtotal * 0.1) : 0;
   const total = subtotal + vat - discount;
+
+  useEffect(() => {
+    if (cartItems.length !== 0) return;
+
+    setDiscountApplied(false);
+    setDiscountCode("");
+    setDiscountError("");
+    setShowDiscountInput(false);
+    setStockMessage("");
+  }, [cartItems.length]);
 
   const handleCustomerChange = useCallback((customer) => {
     setSelectedCustomer(customer);
@@ -107,15 +83,18 @@ function CartPanel() {
     setShowDiscountInput(false);
   };
 
-  const closeCheckout = (completed) => {
-    if (completed) {
-      setCartItems([]);
-      setDiscountApplied(false);
-      setDiscountCode("");
-      setShowDiscountInput(false);
-    }
-    setCheckoutOpen(false);
-  };
+  const closeCheckout = useCallback(
+    (completed) => {
+      if (completed) {
+        setCartItems([]);
+        setDiscountApplied(false);
+        setDiscountCode("");
+        setShowDiscountInput(false);
+      }
+      setCheckoutOpen(false);
+    },
+    [setCartItems]
+  );
 
   return (
     <section className="cart-container" aria-label="Giỏ hàng">
@@ -272,6 +251,8 @@ function CartPanel() {
           discount={discount}
           total={total}
           selectedCustomer={selectedCustomer}
+          shopInfo={shopInfo}
+          onPaymentComplete={onPaymentComplete}
           onClose={closeCheckout}
         />
       )}
@@ -279,4 +260,4 @@ function CartPanel() {
   );
 }
 
-export default CartPanel;
+export default CartArea;

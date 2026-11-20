@@ -161,9 +161,9 @@
 }
 
 .pos-payment-details {
-  min-height: 130px;
-  margin-top: 18px;
-  padding: 16px;
+  min-height: 0;
+  margin-top: 14px;
+  padding: 14px;
   border: 1px solid #e2e8f0;
   border-radius: 10px;
   background: #f8fafc;
@@ -181,7 +181,7 @@
   display: flex;
   align-items: center;
   gap: 8px;
-  height: 44px;
+  height: 40px;
   padding: 0 12px;
   border: 1px solid #cbd5e1;
   border-radius: 8px;
@@ -209,11 +209,34 @@
   font-size: 13px;
 }
 
+.pos-cash-quick-amounts {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 8px;
+}
+
+.pos-cash-quick-amounts button {
+  min-height: 30px;
+  padding: 0 10px;
+  border: 1px solid #dbeafe;
+  border-radius: 6px;
+  color: #1d4ed8;
+  background: #fff;
+  font-size: 11px;
+  font-weight: 600;
+}
+
+.pos-cash-quick-amounts button:hover {
+  border-color: #93c5fd;
+  background: #eff6ff;
+}
+
 .pos-cash-change {
   display: flex;
   justify-content: space-between;
   gap: 12px;
-  margin-top: 10px;
+  margin-top: 8px;
   color: #64748b;
   font-size: 12px;
 }
@@ -338,7 +361,9 @@
 
 .pos-checkout-confirm:disabled {
   cursor: not-allowed;
-  opacity: 0.5;
+  border-color: #cbd5e1;
+  color: #64748b;
+  background: #cbd5e1;
 }
 
 .pos-checkout-success {
@@ -386,6 +411,12 @@
   color: #64748b;
   font-size: 10px;
   letter-spacing: 0.08em;
+}
+
+.pos-receipt-shop-detail {
+  color: #475569;
+  font-size: 10px;
+  letter-spacing: normal;
 }
 
 .pos-receipt-meta {

@@ -52,7 +52,7 @@ function CartCustomer({ onCustomerChange }) {
 
   return (
     <section
-      className="pos-customer cart-customer-section"
+      className="pos-customer"
       aria-label="Customer"
     >
       <div className="pos-customer-heading">
