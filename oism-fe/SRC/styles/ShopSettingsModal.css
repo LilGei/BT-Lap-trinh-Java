@@ -1,0 +1,139 @@
+.pos-settings-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 1100;
+  display: grid;
+  place-items: center;
+  padding: 20px;
+  background: rgba(15, 23, 42, 0.48);
+  backdrop-filter: blur(2px);
+}
+
+.pos-settings-dialog {
+  width: min(520px, 100%);
+  padding: 24px;
+  border: 1px solid #e2e8f0;
+  border-radius: 14px;
+  background: #fff;
+  box-shadow: 0 24px 70px rgba(15, 23, 42, 0.22);
+}
+
+.pos-settings-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 20px;
+}
+
+.pos-settings-header h2 {
+  margin: 0;
+  color: #0f172a;
+  font-size: 20px;
+  font-weight: 700;
+}
+
+.pos-settings-header p {
+  margin: 5px 0 0;
+  color: #64748b;
+  font-size: 13px;
+}
+
+.pos-settings-close {
+  display: grid;
+  flex: 0 0 36px;
+  width: 36px;
+  height: 36px;
+  place-items: center;
+  padding: 0 0 3px;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  color: #64748b;
+  background: #fff;
+  font-size: 24px;
+  line-height: 1;
+}
+
+.pos-settings-form {
+  display: grid;
+  gap: 14px;
+}
+
+.pos-settings-form label {
+  display: grid;
+  gap: 6px;
+  color: #334155;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.pos-settings-form input {
+  width: 100%;
+  min-width: 0;
+  height: 42px;
+  box-sizing: border-box;
+  padding: 0 11px;
+  border: 1px solid #cbd5e1;
+  border-radius: 7px;
+  outline: 0;
+  color: #0f172a;
+  background: #fff;
+  font-size: 13px;
+  font-weight: 400;
+}
+
+.pos-settings-form input:focus {
+  border-color: #2563eb;
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+}
+
+.pos-settings-contact-fields {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.pos-settings-error {
+  margin: 0;
+  color: #b91c1c;
+  font-size: 12px;
+}
+
+.pos-settings-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 9px;
+  margin-top: 6px;
+}
+
+.pos-settings-cancel,
+.pos-settings-save {
+  min-height: 42px;
+  padding: 0 14px;
+  border: 1px solid #cbd5e1;
+  border-radius: 8px;
+  color: #475569;
+  background: #fff;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.pos-settings-save {
+  border-color: #2563eb;
+  color: #fff;
+  background: #2563eb;
+}
+
+.pos-settings-save:hover {
+  background: #1d4ed8;
+}
+
+@media (max-width: 520px) {
+  .pos-settings-dialog {
+    padding: 18px;
+  }
+
+  .pos-settings-contact-fields {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}

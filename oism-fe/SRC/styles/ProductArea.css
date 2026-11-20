@@ -105,83 +105,35 @@
 .pos-product-grid {
   display: grid;
   flex: 1;
-  grid-template-columns: repeat(auto-fill, minmax(190px, 1fr));
+  grid-template-columns: repeat(5, minmax(0, 1fr));
   align-content: start;
   gap: 12px;
   min-height: 0;
   overflow-y: auto;
 }
 
-.pos-product-card {
-  display: flex;
-  min-width: 0;
-  gap: 12px;
-  padding: 12px;
-  border: 1px solid #e2e8f0;
-  border-radius: 10px;
-  background: #fff;
+@media (max-width: 1100px) {
+  .pos-product-grid {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
 }
 
-.pos-product-placeholder {
-  display: grid;
-  flex: 0 0 48px;
-  width: 48px;
-  height: 48px;
-  place-items: center;
-  border-radius: 8px;
-  color: #2563eb;
-  background: #eff6ff;
-  font-size: 20px;
-  font-weight: 700;
+@media (max-width: 900px) {
+  .pos-product-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
 }
 
-.pos-product-info {
-  display: flex;
-  min-width: 0;
-  flex-direction: column;
-  align-items: flex-start;
+@media (max-width: 600px) {
+  .pos-product-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
 }
 
-.pos-stock-badge {
-  padding: 4px 7px;
-  border-radius: 999px;
-  font-size: 10px;
-  font-weight: 600;
-}
-
-.pos-stock-badge.available {
-  color: #15803d;
-  background: #f0fdf4;
-}
-
-.pos-stock-badge.low {
-  color: #a16207;
-  background: #fefce8;
-}
-
-.pos-stock-badge.out {
-  color: #b91c1c;
-  background: #fef2f2;
-}
-
-.pos-product-info h2 {
-  margin: 9px 0 3px;
-  color: #0f172a;
-  font-size: 13px;
-  font-weight: 600;
-  line-height: 1.4;
-}
-
-.pos-product-sku {
-  margin: 0 0 8px;
-  color: #64748b;
-  font-size: 11px;
-}
-
-.pos-product-info > strong {
-  margin-top: auto;
-  color: #2563eb;
-  font-size: 14px;
+@media (max-width: 380px) {
+  .pos-product-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
 }
 
 .pos-empty-products {
@@ -189,4 +141,18 @@
   padding: 30px 12px;
   color: #64748b;
   text-align: center;
+}
+
+.pos-add-product-feedback {
+  flex: 0 0 auto;
+  margin: 8px 0 0;
+  font-size: 12px;
+}
+
+.pos-add-product-feedback.success {
+  color: #15803d;
+}
+
+.pos-add-product-feedback.error {
+  color: #b91c1c;
 }

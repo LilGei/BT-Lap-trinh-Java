@@ -1,97 +1,38 @@
-import { useRef, useState } from "react";
+import { useMemo, useRef, useState } from "react";
+import ProductCard from "./ProductCard";
+import mockProducts from "./mockProducts";
 import "../../styles/ProductArea.css";
-
-const products = [
-  {
-    id: 1,
-    name: "Áo thun nam Basic",
-    category: "Clothing",
-    sku: "AT-001-M",
-    barcode: "8930000000011",
-    price: 150000,
-    onHand: 22,
-    reserved: 3,
-  },
-  {
-    id: 2,
-    name: "Quần jean nữ",
-    category: "Clothing",
-    sku: "QJ-002-32",
-    barcode: "8930000000035",
-    price: 350000,
-    onHand: 8,
-    reserved: 3,
-  },
-  {
-    id: 3,
-    name: "Tai nghe Bluetooth",
-    category: "Electronics",
-    sku: "SKU-003",
-    barcode: "8930000000042",
-    price: 425000,
-    onHand: 0,
-    reserved: 0,
-  },
-  {
-    id: 4,
-    name: "Bình giữ nhiệt 500ml",
-    category: "Home & Living",
-    sku: "SKU-004",
-    barcode: "8930000000059",
-    price: 185000,
-    onHand: 4,
-    reserved: 1,
-  },
-  {
-    id: 5,
-    name: "Chuột không dây",
-    category: "Electronics",
-    sku: "SKU-005",
-    barcode: "8930000000066",
-    price: 220000,
-    onHand: 15,
-    reserved: 0,
-  },
-  {
-    id: 6,
-    name: "Balo laptop",
-    category: "Accessories",
-    sku: "SKU-006",
-    barcode: "8930000000073",
-    price: 490000,
-    onHand: 2,
-    reserved: 1,
-  },
-];
 
 const categories = [
   "All Products",
-  "Electronics",
-  "Clothing",
-  "Home & Living",
-  "Accessories",
+  ...new Set(mockProducts.map((product) => product.category)),
 ];
 
-const formatMoney = (amount) =>
-  new Intl.NumberFormat("vi-VN").format(amount) + "đ";
-
-function ProductArea() {
+function ProductArea({ products, cartItems, onAddProduct }) {
   const [keyword, setKeyword] = useState("");
   const [activeCategory, setActiveCategory] = useState("All Products");
+  const [addMessage, setAddMessage] = useState("");
   const searchInputRef = useRef(null);
 
-  const filteredProducts = products.filter((product) => {
-    const searchTerm = keyword.trim().toLowerCase();
-    const matchesSearch =
-      product.name.toLowerCase().includes(searchTerm) ||
-      product.sku.toLowerCase().includes(searchTerm) ||
-      product.barcode.toLowerCase().includes(searchTerm);
-    const matchesCategory =
-      activeCategory === "All Products" ||
-      product.category === activeCategory;
+  const searchTerm = keyword.trim().toLowerCase();
+  const filteredProducts = useMemo(
+    () =>
+      products.filter((product) => {
+        const matchesSearch =
+          product.name.toLowerCase().includes(searchTerm) ||
+          product.sku.toLowerCase().includes(searchTerm) ||
+          product.barcode.toLowerCase().includes(searchTerm);
+        const matchesCategory =
+          activeCategory === "All Products" ||
+          product.category === activeCategory;
 
-    return matchesSearch && matchesCategory;
-  });
+        return matchesSearch && matchesCategory;
+      }),
+    [products, searchTerm, activeCategory]
+  );
+  const cartQuantitiesByProductId = new Map(
+    cartItems.map((item) => [item.id, item.quantity])
+  );
 
   return (
     <section className="pos-product-area" aria-label="Danh sách sản phẩm">
@@ -148,40 +89,39 @@ function ProductArea() {
 
       <div className="pos-product-grid">
         {filteredProducts.map((product) => {
-          const available = product.onHand - product.reserved;
-          const stockStatus =
-            available === 0
-              ? "out"
-              : available <= 5
-              ? "low"
-              : "available";
-          const stockLabel =
-            stockStatus === "out"
-              ? "Hết hàng"
-              : stockStatus === "low"
-              ? `Sắp hết · Còn ${available}`
-              : `Còn hàng · ${available}`;
-
           return (
-            <article className="pos-product-card" key={product.id}>
-              <div className="pos-product-placeholder" aria-hidden="true">
-                {product.name.charAt(0)}
-              </div>
-              <div className="pos-product-info">
-                <span className={`pos-stock-badge ${stockStatus}`}>
-                  {stockLabel}
-                </span>
-                <h2>{product.name}</h2>
-                <p className="pos-product-sku">{product.sku}</p>
-                <strong>{formatMoney(product.price)}</strong>
-              </div>
-            </article>
+            <ProductCard
+              product={product}
+              key={product.id}
+              quantityInCart={cartQuantitiesByProductId.get(product.id) ?? 0}
+              onAdd={(selectedProduct) => {
+                const added = onAddProduct(selectedProduct);
+                setAddMessage(
+                  {
+                    text: added
+                      ? `Đã thêm "${selectedProduct.name}" vào giỏ.`
+                      : `Không thể thêm "${selectedProduct.name}": đã đạt tồn khả dụng.`,
+                    success: added,
+                  }
+                );
+              }}
+            />
           );
         })}
         {filteredProducts.length === 0 && (
           <p className="pos-empty-products">Không tìm thấy sản phẩm phù hợp.</p>
         )}
       </div>
+      {addMessage && (
+        <p
+          className={`pos-add-product-feedback ${
+            addMessage.success ? "success" : "error"
+          }`}
+          role={addMessage.success ? "status" : "alert"}
+        >
+          {addMessage.text}
+        </p>
+      )}
     </section>
   );
 }
