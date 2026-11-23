@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
+import { authApi } from "@/infrastructure/api/authApi";
 import "@/presentation/styles/Register.css";
 
 const Register = () => {
@@ -8,15 +9,12 @@ const Register = () => {
   const [formData, setFormData] = useState({
     username: "",
     email: "",
-    firstName: "",
-    lastName: "",
+    fullName: "",
     phone: "",
-    dob: "",
+    storeName: "",
+    role: "OWNER",
     password: "",
     repeatPassword: "",
-    gender: "Male",
-    country: "",
-    jobs: "",
   });
 
   const [loading, setLoading] = useState(false);
@@ -26,8 +24,13 @@ const Register = () => {
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
-  const handleRegister = (e) => {
+  const handleRegister = async (e) => {
     e.preventDefault();
+
+    if (formData.password.length < 6) {
+      alert("Mật khẩu phải có ít nhất 6 ký tự!");
+      return;
+    }
 
     if (formData.password !== formData.repeatPassword) {
       alert("Mật khẩu nhập lại không khớp!");
@@ -35,44 +38,25 @@ const Register = () => {
     }
 
     setLoading(true);
-
     try {
-      
-      const existingUsers = JSON.parse(localStorage.getItem("registered_users") || "[]");
-
-     
-      const userExists = existingUsers.some(
-        (u) => u.username === formData.username || u.email === formData.email
-      );
-
-      if (userExists) {
-        alert("Username hoặc Email này đã tồn tại!");
-        setLoading(false);
-        return;
-      }
-
-      
-      const newUser = {
-        username: formData.username,
-        email: formData.email,
+      await authApi.register({
+        username: formData.username.trim(),
+        email: formData.email.trim(),
+        fullName: formData.fullName.trim(),
+        phone: formData.phone.trim(),
+        storeName: formData.storeName.trim(),
+        role: formData.role,
         password: formData.password,
-        firstName: formData.firstName,
-        lastName: formData.lastName,
-        phone: formData.phone,
-        dob: formData.dob,
-        gender: formData.gender,
-        country: formData.country,
-        jobs: formData.jobs,
-        role: "candidate",
-      };
+      });
 
-      existingUsers.push(newUser);
-      localStorage.setItem("registered_users", JSON.stringify(existingUsers));
-
-      alert("Đăng ký thành công (đã lưu vào LocalStorage)!");
+      alert("Đăng ký tài khoản thành công! Vui lòng đăng nhập.");
       navigate("/login");
     } catch (err) {
-      alert("Lỗi khi lưu dữ liệu: " + err.message);
+      const errorMsg =
+        err?.response?.data?.message ||
+        err?.message ||
+        "Đăng ký thất bại. Username hoặc Email có thể đã tồn tại!";
+      alert(errorMsg);
     } finally {
       setLoading(false);
     }
@@ -81,13 +65,14 @@ const Register = () => {
   return (
     <div className="register-container">
       <div className="register-card">
-        <h1>REGISTER</h1>
+        <h1>REGISTER OISM</h1>
         <form onSubmit={handleRegister}>
           <div className="form-grid">
             <div className="form-group">
-              <label>Username</label>
+              <label>Username *</label>
               <input
                 name="username"
+                placeholder="VD: owner_q1"
                 value={formData.username}
                 onChange={handleChange}
                 required
@@ -95,10 +80,11 @@ const Register = () => {
             </div>
 
             <div className="form-group">
-              <label>Email</label>
+              <label>Email *</label>
               <input
                 type="email"
                 name="email"
+                placeholder="example@oism.vn"
                 value={formData.email}
                 onChange={handleChange}
                 required
@@ -106,29 +92,21 @@ const Register = () => {
             </div>
 
             <div className="form-group">
-              <label>Last Name</label>
+              <label>Họ và tên *</label>
               <input
-                name="lastName"
-                value={formData.lastName}
+                name="fullName"
+                placeholder="Nguyễn Văn A"
+                value={formData.fullName}
                 onChange={handleChange}
                 required
               />
             </div>
 
             <div className="form-group">
-              <label>First Name</label>
-              <input
-                name="firstName"
-                value={formData.firstName}
-                onChange={handleChange}
-                required
-              />
-            </div>
-
-            <div className="form-group">
-              <label>Phone</label>
+              <label>Số điện thoại *</label>
               <input
                 name="phone"
+                placeholder="090xxxxxxx"
                 value={formData.phone}
                 onChange={handleChange}
                 required
@@ -136,21 +114,35 @@ const Register = () => {
             </div>
 
             <div className="form-group">
-              <label>Date of Birth</label>
+              <label>Tên cửa hàng / Chi nhánh</label>
               <input
-                type="date"
-                name="dob"
-                value={formData.dob}
+                name="storeName"
+                placeholder="OISM Retail Quận 1"
+                value={formData.storeName}
                 onChange={handleChange}
-                required
               />
             </div>
 
             <div className="form-group">
-              <label>Password</label>
+              <label>Vai trò tài khoản (Role)</label>
+              <select
+                name="role"
+                className="form-select"
+                value={formData.role}
+                onChange={handleChange}
+              >
+                <option value="OWNER">Chủ cửa hàng (OWNER)</option>
+                <option value="STAFF">Nhân viên Kho (STAFF)</option>
+                <option value="CASHIER">Thu ngân POS (CASHIER)</option>
+              </select>
+            </div>
+
+            <div className="form-group">
+              <label>Password *</label>
               <input
                 type="password"
                 name="password"
+                placeholder="Tối thiểu 6 ký tự"
                 value={formData.password}
                 onChange={handleChange}
                 required
@@ -158,44 +150,12 @@ const Register = () => {
             </div>
 
             <div className="form-group">
-              <label>Repeat Password</label>
+              <label>Repeat Password *</label>
               <input
                 type="password"
                 name="repeatPassword"
+                placeholder="Nhập lại mật khẩu"
                 value={formData.repeatPassword}
-                onChange={handleChange}
-                required
-              />
-            </div>
-
-            <div className="form-group">
-              <label>Gender</label>
-              <select
-                name="gender"
-                className="form-select"
-                value={formData.gender}
-                onChange={handleChange}
-              >
-                <option value="Male">Male</option>
-                <option value="Female">Female</option>
-              </select>
-            </div>
-
-            <div className="form-group">
-              <label>Country</label>
-              <input
-                name="country"
-                value={formData.country}
-                onChange={handleChange}
-                required
-              />
-            </div>
-
-            <div className="form-group">
-              <label>Job</label>
-              <input
-                name="jobs"
-                value={formData.jobs}
                 onChange={handleChange}
                 required
               />

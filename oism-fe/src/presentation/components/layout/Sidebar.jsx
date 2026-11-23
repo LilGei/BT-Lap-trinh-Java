@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useAuth } from "@/application/context/AppProvider";
 import "@/presentation/styles/Sidebar.css";
 
 const menuGroups = [
@@ -30,10 +31,11 @@ const menuGroups = [
     ],
   },
   {
-    title: "BÁO CÁO & CÔNG CỤ",
+    title: "BÁO CÁO & QUẢN TRỊ",
     items: [
-      { id: "reports", label: "Doanh thu & Lợi nhuận", icon: "chart" },
+      { id: "reports", label: "Doanh thu & Lợi nhuận", icon: "chart", ownerOnly: true },
       { id: "ai-suggest", label: "AI Suggest", icon: "chart" },
+      { id: "staff", label: "Nhân viên & Phân quyền", icon: "users", ownerOnly: true },
     ],
   },
 ];
@@ -92,9 +94,7 @@ const iconPaths = {
       <path d="M9 4V2h6v2M8 10h8M8 14h6" />
     </>
   ),
-  transfer: (
-    <path d="M4 7h15l-3-3M20 17H5l3 3" />
-  ),
+  transfer: <path d="M4 7h15l-3-3M20 17H5l3 3" />,
   alert: (
     <>
       <path d="m12 3 10 18H2L12 3Z" />
@@ -105,6 +105,14 @@ const iconPaths = {
     <>
       <path d="M3 21V11M9 21V7M15 21V3M21 21V13" />
       <path d="m3 8 6-4 6 2 6-5" />
+    </>
+  ),
+  users: (
+    <>
+      <circle cx="9" cy="7" r="3" />
+      <path d="M3 20a6 6 0 0 1 12 0" />
+      <circle cx="17" cy="9" r="2.5" />
+      <path d="M16 20a5 5 0 0 1 6 0" />
     </>
   ),
   settings: (
@@ -146,8 +154,18 @@ function MenuIcon({ name }) {
   );
 }
 
-function Sidebar({ currentPage, onNavigate, onLogout }) {
+function Sidebar({
+  currentPage,
+  onNavigate,
+  onLogout,
+  onOpenStoreModal,
+  onOpenPasswordModal,
+}) {
   const [showUserMenu, setShowUserMenu] = useState(false);
+  const { user } = useAuth();
+
+  const role = (user?.role || "OWNER").toUpperCase();
+  const isOwnerOrAdmin = role === "OWNER" || role === "ADMIN";
 
   return (
     <aside className="oism-sidebar">
@@ -157,44 +175,75 @@ function Sidebar({ currentPage, onNavigate, onLogout }) {
       </div>
 
       <nav className="sidebar-navigation">
-        {menuGroups.map((group, index) => (
-          <div className="sidebar-group" key={group.title || index}>
-            {group.title && (
-              <div className="sidebar-group-title">{group.title}</div>
-            )}
+        {menuGroups.map((group, index) => {
+          const visibleItems = group.items.filter(
+            (item) => !item.ownerOnly || isOwnerOrAdmin
+          );
+          if (visibleItems.length === 0) return null;
 
-            {group.items.map((item) => (
-              <button
-                key={item.id}
-                type="button"
-                className={`sidebar-item ${
-                  currentPage === item.id ? "active" : ""
-                }`}
-                onClick={() => onNavigate(item.id)}
-              >
-                <MenuIcon name={item.icon} />
-                <span>{item.label}</span>
-              </button>
-            ))}
-          </div>
-        ))}
+          return (
+            <div className="sidebar-group" key={group.title || index}>
+              {group.title && (
+                <div className="sidebar-group-title">{group.title}</div>
+              )}
+
+              {visibleItems.map((item) => (
+                <button
+                  key={item.id}
+                  type="button"
+                  className={`sidebar-item ${
+                    currentPage === item.id ? "active" : ""
+                  }`}
+                  onClick={() => onNavigate(item.id)}
+                >
+                  <MenuIcon name={item.icon} />
+                  <span>{item.label}</span>
+                </button>
+              ))}
+            </div>
+          );
+        })}
       </nav>
 
       <div className="sidebar-bottom">
         <button
           type="button"
-          className={`sidebar-item ${
-            currentPage === "settings" ? "active" : ""
-          }`}
-          onClick={() => onNavigate("settings")}
+          className="sidebar-item"
+          onClick={onOpenStoreModal}
         >
           <MenuIcon name="settings" />
-          <span>Cài đặt</span>
+          <span>Thông tin cửa hàng</span>
         </button>
 
         <div className="sidebar-user-wrapper">
           {showUserMenu && (
             <div className="sidebar-user-menu">
+              <button
+                type="button"
+                className="sidebar-logout-button"
+                style={{ color: "#e2e8f0", borderBottom: "1px solid rgba(255,255,255,0.08)" }}
+                onClick={() => {
+                  setShowUserMenu(false);
+                  onOpenStoreModal();
+                }}
+              >
+                <MenuIcon name="warehouse" />
+                <span>Thông tin cửa hàng</span>
+              </button>
+
+              <button
+                type="button"
+                className="sidebar-logout-button"
+                style={{ color: "#e2e8f0", borderBottom: "1px solid rgba(255,255,255,0.08)" }}
+                onClick={() => {
+                  setShowUserMenu(false);
+                  onOpenPasswordModal();
+                }}
+              >
+                <MenuIcon name="settings" />
+                <span>Đổi mật khẩu</span>
+              </button>
+
               <button
                 type="button"
                 className="sidebar-logout-button"
@@ -217,8 +266,14 @@ function Sidebar({ currentPage, onNavigate, onLogout }) {
             </div>
 
             <div className="sidebar-user-info">
-              <strong>Admin</strong>
-              <span>Quản trị viên</span>
+              <strong>{user?.fullName || user?.username || "Admin"}</strong>
+              <span>
+                {role === "OWNER" || role === "ADMIN"
+                  ? "Quản trị viên"
+                  : role === "CASHIER"
+                  ? "Thu ngân"
+                  : "Nhân viên kho"}
+              </span>
             </div>
 
             <MenuIcon name="chevron" />
