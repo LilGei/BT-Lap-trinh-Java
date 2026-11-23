@@ -1,81 +1,96 @@
-import React, { useState, useEffect } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faGoogle } from '@fortawesome/free-brands-svg-icons';
-import { faEnvelope, faShieldAlt, faUser, faLock } from '@fortawesome/free-solid-svg-icons';
-import { useAuth } from '@/application/context/AppProvider';
+import React, { useState, useEffect } from "react";
+import { Link, useNavigate } from "react-router-dom";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faGoogle } from "@fortawesome/free-brands-svg-icons";
+import {
+  faEnvelope,
+  faShieldAlt,
+  faUser,
+  faLock,
+} from "@fortawesome/free-solid-svg-icons";
+import { useAuth } from "@/application/context/AppProvider";
+import { authApi } from "@/infrastructure/api/authApi";
 import "@/presentation/styles/AdminLogin.css";
 
 const AdminLogin = () => {
   const navigate = useNavigate();
-  const auth = useAuth();
+  const { login } = useAuth();
 
   const [loginData, setLoginData] = useState({
-    username: '',
-    password: ''
+    username: "",
+    password: "",
   });
 
   const [loading, setLoading] = useState(false);
-  const [errorMessage, setErrorMessage] = useState('');
+  const [errorMessage, setErrorMessage] = useState("");
 
   useEffect(() => {
-    const link = document.createElement('link');
-    link.href = 'https://fonts.googleapis.com/css2?family=Archivo+Black&display=swap';
-    link.rel = 'stylesheet';
+    const link = document.createElement("link");
+    link.href =
+      "https://fonts.googleapis.com/css2?family=Archivo+Black&display=swap";
+    link.rel = "stylesheet";
     document.head.appendChild(link);
   }, []);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
     setLoginData({ ...loginData, [name]: value });
-    if (errorMessage) setErrorMessage('');
+    if (errorMessage) setErrorMessage("");
   };
 
-  const handleAdminLogin = (e) => {
+  const handleAdminLogin = async (e) => {
     e.preventDefault();
 
     if (!loginData.username.trim()) {
-      setErrorMessage("Please enter your Admin Username/Email!");
+      setErrorMessage("Vui lòng nhập tài khoản hoặc Email Quản trị viên!");
       return;
     }
     if (!loginData.password.trim()) {
-      setErrorMessage("Please enter your password!");
+      setErrorMessage("Vui lòng nhập mật khẩu!");
       return;
     }
 
     setLoading(true);
+    setErrorMessage("");
 
-    setTimeout(() => {
-      const registeredUsers = JSON.parse(localStorage.getItem("registered_users") || "[]");
-      const foundAdmin = registeredUsers.find(
-        (u) =>
-          (u.username === loginData.username || u.email === loginData.username) &&
-          u.password === loginData.password &&
-          u.role === 'admin'
-      );
+    try {
+      const res = await authApi.adminLogin(loginData);
+      const data = res?.data || res;
+      const token = data?.token || data?.accessToken;
+      const userObj = data?.user || data;
+      const username = userObj?.username || loginData.username;
+      const fullName = userObj?.fullName || username;
+      const role = (userObj?.role || "").toUpperCase();
 
-      if (foundAdmin || (loginData.username === 'admin' && loginData.password === '123456')) {
-        const username = foundAdmin ? foundAdmin.username : loginData.username;
-
-        localStorage.setItem('access_token', 'mock_admin_token_123456');
-        localStorage.setItem('user_role', 'admin');
-        localStorage.setItem('username', username);
-
-        if (auth?.setUser) {
-          auth.setUser({
-            role: 'admin',
-            username: username
-          });
-        }
-
-        alert("Admin Login Successful!");
-        navigate('/overview');
-      } else {
-        setErrorMessage("Sai tài khoản hoặc mật khẩu Admin! (Mặc định: admin / 123456)");
+      if (!token) {
+        throw new Error("Không nhận được token xác thực từ máy chủ.");
       }
 
+      if (role && role !== "OWNER" && role !== "ADMIN") {
+        setErrorMessage(
+          "Tài khoản này không có quyền Quản trị viên. Vui lòng đăng nhập ở trang User!"
+        );
+        setLoading(false);
+        return;
+      }
+
+      login({
+        token,
+        role: role || "OWNER",
+        username,
+        fullName,
+      });
+
+      navigate("/overview", { replace: true });
+    } catch (err) {
+      const msg =
+        err?.response?.data?.message ||
+        err?.message ||
+        "Sai tài khoản hoặc mật khẩu Quản trị viên!";
+      setErrorMessage(msg);
+    } finally {
       setLoading(false);
-    }, 400);
+    }
   };
 
   return (
@@ -89,7 +104,9 @@ const AdminLogin = () => {
 
           <div className="admin-content-container">
             <h2 className="admin-welcome-title">Admin Portal</h2>
-            <p className="admin-welcome-subtitle">Enter your admin credentials to access the dashboard</p>
+            <p className="admin-welcome-subtitle">
+              Đăng nhập bằng tài khoản Chủ cửa hàng / Quản trị viên
+            </p>
 
             <form onSubmit={handleAdminLogin}>
               <div className="admin-input-group">
@@ -123,13 +140,20 @@ const AdminLogin = () => {
               </div>
 
               {errorMessage && (
-                <p style={{ color: 'red', fontSize: '14px', marginBottom: '10px' }}>
+                <p
+                  style={{
+                    color: "#dc2626",
+                    fontSize: "14px",
+                    marginBottom: "10px",
+                    fontWeight: 500,
+                  }}
+                >
                   {errorMessage}
                 </p>
               )}
 
               <div className="admin-forgot-pw">
-                <Link to="/forgot">Forgot password?</Link>
+                <Link to="/forgot-password">Forgot password?</Link>
               </div>
 
               <button
