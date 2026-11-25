@@ -34,6 +34,55 @@ function ProductArea({ products, cartItems, onAddProduct }) {
     cartItems.map((item) => [item.id, item.quantity])
   );
 
+  const addProductToCart = (product) => {
+    const available =
+      product.onHand -
+      product.reserved -
+      (cartQuantitiesByProductId.get(product.id) ?? 0);
+
+    if (available <= 0) {
+      setAddMessage({
+        text: `Không thể thêm "${product.name}": đã hết tồn khả dụng.`,
+        success: false,
+      });
+      return;
+    }
+
+    const added = onAddProduct(product);
+    setAddMessage({
+      text: added
+        ? `Đã thêm "${product.name}" vào giỏ.`
+        : `Không thể thêm "${product.name}": đã hết tồn khả dụng.`,
+      success: added,
+    });
+  };
+
+  const handleSearchKeyDown = (event) => {
+    if (event.key !== "Enter") return;
+
+    const scannedBarcode = keyword.trim();
+    if (!scannedBarcode) return;
+
+    event.preventDefault();
+    const matchedProduct = products.find(
+      (product) =>
+        typeof product.barcode === "string" &&
+        product.barcode.toLowerCase() === scannedBarcode.toLowerCase()
+    );
+
+    if (matchedProduct) {
+      addProductToCart(matchedProduct);
+    } else {
+      setAddMessage({
+        text: `Không tìm thấy mã vạch "${scannedBarcode}".`,
+        success: false,
+      });
+    }
+
+    setKeyword("");
+    searchInputRef.current?.focus();
+  };
+
   return (
     <section className="pos-product-area" aria-label="Danh sách sản phẩm">
       <div className="pos-search" role="search">
@@ -43,6 +92,7 @@ function ProductArea({ products, cartItems, onAddProduct }) {
           type="search"
           value={keyword}
           onChange={(event) => setKeyword(event.target.value)}
+          onKeyDown={handleSearchKeyDown}
           placeholder="Tìm tên, SKU hoặc quét barcode..."
           aria-label="Tìm sản phẩm theo tên, SKU hoặc barcode"
           autoCapitalize="off"
@@ -71,6 +121,18 @@ function ProductArea({ products, cartItems, onAddProduct }) {
         </button>
       </div>
 
+      {addMessage && (
+        <p
+          className={`pos-add-product-feedback ${
+            addMessage.success ? "success" : "error"
+          }`}
+          role={addMessage.success ? "status" : "alert"}
+          aria-atomic="true"
+        >
+          {addMessage.text}
+        </p>
+      )}
+
       <nav className="pos-category-tabs" aria-label="Lọc sản phẩm theo danh mục">
         {categories.map((category) => (
           <button
@@ -94,17 +156,7 @@ function ProductArea({ products, cartItems, onAddProduct }) {
               product={product}
               key={product.id}
               quantityInCart={cartQuantitiesByProductId.get(product.id) ?? 0}
-              onAdd={(selectedProduct) => {
-                const added = onAddProduct(selectedProduct);
-                setAddMessage(
-                  {
-                    text: added
-                      ? `Đã thêm "${selectedProduct.name}" vào giỏ.`
-                      : `Không thể thêm "${selectedProduct.name}": đã đạt tồn khả dụng.`,
-                    success: added,
-                  }
-                );
-              }}
+              onAdd={addProductToCart}
             />
           );
         })}
@@ -112,16 +164,6 @@ function ProductArea({ products, cartItems, onAddProduct }) {
           <p className="pos-empty-products">Không tìm thấy sản phẩm phù hợp.</p>
         )}
       </div>
-      {addMessage && (
-        <p
-          className={`pos-add-product-feedback ${
-            addMessage.success ? "success" : "error"
-          }`}
-          role={addMessage.success ? "status" : "alert"}
-        >
-          {addMessage.text}
-        </p>
-      )}
     </section>
   );
 }

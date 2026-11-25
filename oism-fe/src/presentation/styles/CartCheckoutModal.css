@@ -392,7 +392,7 @@
   border-radius: 8px;
   color: #0f172a;
   background: #fff;
-  font-size: 12px;
+  font-size: 13px;
 }
 
 .pos-receipt-brand {
@@ -404,18 +404,18 @@
 }
 
 .pos-receipt-brand strong {
-  font-size: 16px;
+  font-size: 18px;
 }
 
 .pos-receipt-brand span {
   color: #64748b;
-  font-size: 10px;
+  font-size: 11px;
   letter-spacing: 0.08em;
 }
 
 .pos-receipt-shop-detail {
   color: #475569;
-  font-size: 10px;
+  font-size: 11px;
   letter-spacing: normal;
 }
 
@@ -425,7 +425,7 @@
   gap: 7px 12px;
   padding: 12px 0;
   color: #64748b;
-  font-size: 11px;
+  font-size: 12px;
 }
 
 .pos-receipt-meta strong {
@@ -442,6 +442,7 @@
   gap: 8px;
   padding: 12px 0;
   border-top: 1px dashed #cbd5e1;
+  font-size: 12px;
 }
 
 .pos-receipt-items > div,
@@ -484,8 +485,58 @@
 }
 
 @media print {
+  @page {
+    margin: 0;
+  }
+
+  html,
+  body,
+  #root,
+  .oism-content,
+  .pos-page-shell,
+  .pos-page,
+  .cart-container {
+    width: 100% !important;
+    height: auto !important;
+    min-height: 0 !important;
+    max-height: none !important;
+    overflow: visible !important;
+  }
+
+  .oism-app-layout {
+    display: block !important;
+    width: 100% !important;
+    height: auto !important;
+    min-height: 0 !important;
+    max-height: none !important;
+    overflow: visible !important;
+  }
+
+  .oism-content,
+  .pos-page-shell,
+  .pos-page,
+  .cart-container {
+    display: block !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    border: 0 !important;
+    box-shadow: none !important;
+  }
+
   body * {
     visibility: hidden !important;
+  }
+
+  .oism-sidebar,
+  .pos-app-header,
+  .pos-product-area,
+  .cart-panel-header,
+  .pos-customer,
+  .cart-items-section,
+  .cart-summary-section,
+  .pos-checkout-success,
+  .pos-checkout-actions {
+    display: none !important;
   }
 
   .pos-checkout-overlay,
@@ -496,38 +547,60 @@
   }
 
   .pos-checkout-overlay {
-    position: static;
-    display: block;
-    padding: 0;
-    background: #fff;
+    position: static !important;
+    display: block !important;
+    width: auto !important;
+    height: auto !important;
+    padding: 0 !important;
+    background: #fff !important;
   }
 
   .pos-checkout-dialog {
-    position: static;
-    width: auto;
-    max-height: none;
-    overflow: visible;
-    padding: 0;
-    border: 0;
-    box-shadow: none;
-  }
-
-  .pos-checkout-success,
-  .pos-checkout-actions {
-    display: none !important;
+    position: static !important;
+    width: auto !important;
+    height: auto !important;
+    max-height: none !important;
+    overflow: visible !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    border: 0 !important;
+    box-shadow: none !important;
   }
 
   .pos-receipt {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 76mm;
-    max-width: none;
-    margin: 0;
-    padding: 4mm;
-    border: 0;
-    border-radius: 0;
-    font-size: 10pt;
+    position: relative !important;
+    top: auto !important;
+    left: auto !important;
+    width: 76mm !important;
+    max-width: 76mm !important;
+    margin: 0 auto !important;
+    padding: 4mm !important;
+    border: 0 !important;
+    border-radius: 0 !important;
+    font-size: 11pt !important;
+    color: #000 !important;
+    background: #fff !important;
+  }
+
+  .pos-receipt-brand strong {
+    font-size: 16pt !important;
+  }
+
+  .pos-receipt-brand span,
+  .pos-receipt-shop-detail {
+    font-size: 10pt !important;
+  }
+
+  .pos-receipt-meta,
+  .pos-receipt-items,
+  .pos-receipt-totals,
+  .pos-receipt-payment,
+  .pos-receipt-thanks {
+    font-size: 10.5pt !important;
+  }
+
+  .pos-receipt-grand-total {
+    font-size: 13pt !important;
   }
 }
 

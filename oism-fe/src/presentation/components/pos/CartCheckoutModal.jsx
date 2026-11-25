@@ -2,6 +2,12 @@ import { useCallback, useEffect, useState } from "react";
 import formatMoney from "./formatMoney";
 import "@/presentation/styles/CartCheckoutModal.css";
 
+const formatReceiptDateTime = (dateTime) =>
+  new Intl.DateTimeFormat("vi-VN", {
+    dateStyle: "short",
+    timeStyle: "short",
+  }).format(new Date(dateTime));
+
 function CartCheckoutModal({
   items,
   subtotal,
@@ -17,6 +23,7 @@ function CartCheckoutModal({
   const [paymentMethod, setPaymentMethod] = useState("cash");
   const [cashReceived, setCashReceived] = useState(String(total));
   const [orderNumber, setOrderNumber] = useState("");
+  const [orderDateTime, setOrderDateTime] = useState("");
 
   const cashReceivedAmount = Number(cashReceived) || 0;
   const canConfirmCash =
@@ -63,6 +70,7 @@ function CartCheckoutModal({
       paymentMethod,
     });
     setOrderNumber(completedOrderNumber);
+    setOrderDateTime(completedAt.toISOString());
     setCheckoutStatus("complete");
   };
 
@@ -283,6 +291,12 @@ function CartCheckoutModal({
               <div className="pos-receipt-meta">
                 <span>Mã đơn</span>
                 <strong>{orderNumber}</strong>
+                <span>Ngày giờ</span>
+                <strong>
+                  <time dateTime={orderDateTime}>
+                    {formatReceiptDateTime(orderDateTime)}
+                  </time>
+                </strong>
                 <span>Khách hàng</span>
                 <strong>{selectedCustomer.name}</strong>
               </div>
