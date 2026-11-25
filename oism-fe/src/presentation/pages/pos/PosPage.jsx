@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import ProductArea from "@/presentation/components/pos/ProductArea";
 import CartArea from "@/presentation/components/pos/CartArea";
 import HeaderPos from "@/presentation/components/pos/HeaderPos";
+import PosOnlineOrderNotification from "@/presentation/components/pos/PosOnlineOrderNotification";
 import PosOrderHistory from "@/presentation/components/pos/PosOrderHistory";
 import mockProducts from "@/presentation/components/pos/mockProducts";
 import "@/presentation/styles/PosPage.css";
@@ -183,6 +184,7 @@ function PosPage() {
         shopInfo={shopInfo}
         onShopInfoSave={handleShopInfoSave}
       />
+      <PosOnlineOrderNotification />
       {historyOpen ? (
         <PosOrderHistory orders={posOrders} />
       ) : (
