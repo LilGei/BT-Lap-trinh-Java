@@ -20,4 +20,6 @@ public class Branch extends TenantAwareEntity {
     @Column(name = "is_active", nullable = false) private boolean active = true;
     @Column(name = "created_at", nullable = false, updatable = false)
     private Instant createdAt = Instant.now();
+
+    public boolean isActive() { return active; }
 }

@@ -1,0 +1,5 @@
+# Created at 2026-11-26T00:30:59.574
+Boot Manifest-JAR contains absolute paths in classpath 'D:\Dữ liệu của tôi\môn lập trình java\Bai_tap_lon\oism-backend\target\test-classes'
+Hint: <argLine>-Djdk.net.URLClassPath.disableClassPathURLCheck=true</argLine>
+'other' has different root
+
