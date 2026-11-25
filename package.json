@@ -1,0 +1,33 @@
+{
+  "name": "bt-lap-trinh-java",
+  "version": "1.0.0",
+  "description": "📦 OISM - Hệ thống quản lý bán hàng và tồn kho đa kênh",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/LilGei/BT-Lap-trinh-Java.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/LilGei/BT-Lap-trinh-Java/issues"
+  },
+  "homepage": "https://github.com/LilGei/BT-Lap-trinh-Java#readme",
+  "dependencies": {
+    "bcryptjs": "^3.0.3",
+    "cors": "^2.8.6",
+    "dotenv": "^18.0.9",
+    "express": "^5.3.0",
+    "jsonwebtoken": "^9.0.3",
+    "pg": "^8.23.1",
+    "socket.io": "^4.8.4"
+  },
+  "devDependencies": {
+    "nodemon": "^3.1.14"
+  }
+}
