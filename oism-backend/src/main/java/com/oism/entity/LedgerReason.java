@@ -1,0 +1,2 @@
+package com.oism.entity;
+public enum LedgerReason { PURCHASE, SALE, RETURN, STOCKTAKE_ADJUST, TRANSFER_OUT, TRANSFER_IN, TRANSFER_RETURN }
