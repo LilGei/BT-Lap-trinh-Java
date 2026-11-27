@@ -1,56 +1,37 @@
 import { useState } from "react";
+import orderApi from "@/infrastructure/api/orderApi";
 import "@/presentation/styles/WebhookSimulatorPage.css";
 
+// Mẫu dữ liệu đơn gửi lên backend (kênh bán lấy ở ô chọn bên dưới).
+// Không điền external_order_id thì backend tự sinh mã, bấm gửi nhiều lần không bị trùng.
 const initialPayload = {
-  event: "order.created",
-  timestamp: "2026-11-07T08:00:00+07:00",
-  data: {
-    orderId: "ORD-00128",
-    channel: "Website",
-    totalAmount: 1250000,
-    status: "Chờ xử lý",
-  },
+  customer_name: "Nguyen Van A",
+  total: 450000,
 };
 
-const eventOptions = [
-  "order.created",
-  "order.updated",
-  "order.cancelled",
-  "inventory.low_stock",
-];
+// Các kênh bán hợp lệ trong database
+const eventOptions = ["SHOPEE", "TIKTOK", "LAZADA"];
+
+// API backend nhận đơn giả lập
+const API_PATH = "/orders/webhook-simulate";
 
 function WebhookSimulatorPage() {
-  const [event, setEvent] = useState("order.created");
-  const [endpoint, setEndpoint] = useState(
-    "https://example.com/webhook"
-  );
+  const [event, setEvent] = useState("SHOPEE");
+  const [endpoint, setEndpoint] = useState(API_PATH);
   const [payload, setPayload] = useState(
     JSON.stringify(initialPayload, null, 2)
   );
   const [result, setResult] = useState(null);
   const [history, setHistory] = useState([]);
+  const [sending, setSending] = useState(false);
 
+  // Đổi kênh bán
   const handleEventChange = (value) => {
     setEvent(value);
-
-    try {
-      const parsed = JSON.parse(payload);
-      parsed.event = value;
-      setPayload(JSON.stringify(parsed, null, 2));
-    } catch {
-      // Không ghi đè JSON khi nội dung đang chỉnh sửa bị lỗi.
-    }
   };
 
-  const handleSend = () => {
-    if (!endpoint.trim()) {
-      setResult({
-        success: false,
-        message: "Vui lòng nhập Endpoint URL.",
-      });
-      return;
-    }
-
+  // Gửi đơn giả lập lên backend
+  const handleSend = async () => {
     let parsedPayload;
 
     try {
@@ -64,37 +45,54 @@ function WebhookSimulatorPage() {
     }
 
     const time = new Date().toLocaleString("vi-VN");
+    setSending(true);
 
-    const response = {
-      success: true,
-      status: 200,
-      message: "Webhook mô phỏng được xử lý thành công.",
-      time,
-    };
+    try {
+      // axiosClient đã trả về data: { message, order }
+      const res = await orderApi.simulateWebhook({
+        ...parsedPayload,
+        channel: event,
+      });
 
-    setResult(response);
-
-    setHistory((prev) => [
-      {
-        id: Date.now(),
-        event,
-        endpoint,
-        status: 200,
+      setResult({
+        success: true,
+        status: 201,
+        message: res?.message || "Webhook mô phỏng được xử lý thành công.",
         time,
-      },
-      ...prev,
-    ]);
+      });
 
-    console.log("Webhook payload mô phỏng:", parsedPayload);
+      setHistory((prev) => [
+        { id: Date.now(), event, endpoint, status: 201, time },
+        ...prev,
+      ]);
+    } catch (err) {
+      const status = err.response?.status || 0;
+
+      setResult({
+        success: false,
+        status,
+        message:
+          err.response?.data?.error ||
+          err.response?.data?.message ||
+          "Gửi webhook thất bại. Kiểm tra backend đã chạy chưa.",
+        time,
+      });
+
+      setHistory((prev) => [
+        { id: Date.now(), event, endpoint, status, time },
+        ...prev,
+      ]);
+    } finally {
+      setSending(false);
+    }
   };
 
   const handleReset = () => {
-    setEvent("order.created");
-    setEndpoint("https://example.com/webhook");
+    setEvent("SHOPEE");
+    setEndpoint(API_PATH);
     setPayload(JSON.stringify(initialPayload, null, 2));
     setResult(null);
   };
-
   return (
     <div className="webhook-page">
       <main className="webhook-main">
@@ -111,15 +109,14 @@ function WebhookSimulatorPage() {
 
         <section className="webhook-notice">
           <span>ⓘ</span>
-          Đây là chức năng mô phỏng Frontend. Chưa gửi request thật đến
-          Endpoint.
+                    Gửi một đơn giả lập từ kênh bán lên backend. Đơn sẽ xuất hiện ở trang Đơn hàng.
         </section>
 
         <section className="webhook-card">
           <h2>Cấu hình Webhook</h2>
 
           <div className="webhook-field">
-            <label>Loại sự kiện</label>
+            <label>Kênh bán</label>
             <select
               value={event}
               onChange={(e) => handleEventChange(e.target.value)}
@@ -133,9 +130,10 @@ function WebhookSimulatorPage() {
           </div>
 
           <div className="webhook-field">
-            <label>Endpoint URL</label>
+            <label>API gọi đến</label>
             <input
               value={endpoint}
+              readOnly
               onChange={(e) => setEndpoint(e.target.value)}
               placeholder="Nhập Endpoint URL..."
             />
@@ -155,8 +153,12 @@ function WebhookSimulatorPage() {
               Đặt lại
             </button>
 
-            <button className="webhook-send" onClick={handleSend}>
-              Gửi thử Webhook
+                        <button
+              className="webhook-send"
+              onClick={handleSend}
+              disabled={sending}
+            >
+              {sending ? "Đang gửi..." : "Gửi thử Webhook"}
             </button>
           </div>
         </section>
@@ -198,7 +200,7 @@ function WebhookSimulatorPage() {
               <table className="webhook-table">
                 <thead>
                   <tr>
-                    <th>Sự kiện</th>
+                    <th>Kênh</th>
                     <th>Endpoint</th>
                     <th>Thời gian</th>
                     <th>Trạng thái</th>

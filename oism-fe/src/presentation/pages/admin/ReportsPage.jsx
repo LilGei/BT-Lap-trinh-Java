@@ -1,4 +1,6 @@
-import { useMemo, useState } from "react";
+import React, { useMemo, useState, useEffect } from "react";
+import reportApi from "@/infrastructure/api/reportApi";
+import orderApi from "@/infrastructure/api/orderApi";
 import "@/presentation/styles/ReportsPage.css";
 
 const reportData = {
@@ -110,6 +112,28 @@ const formatCompact = (value) =>
 
 function ReportsPage() {
   const [period, setPeriod] = useState("30");
+  const [revenueData, setRevenueData] = useState({ total_orders: 0, total_revenue: 0, average_order_value: 0 });
+const [ordersList, setOrdersList] = useState([]);
+const [loading, setLoading] = useState(true);
+
+useEffect(() => {
+  const fetchReportData = async () => {
+    try {
+      setLoading(true);
+      const [revRes, ordersRes] = await Promise.all([
+        reportApi.getRevenue(),
+        orderApi.getOrders()
+      ]);
+      if (revRes) setRevenueData(revRes);
+      if (Array.isArray(ordersRes)) setOrdersList(ordersRes);
+    } catch (err) {
+      console.error("Lỗi khi tải dữ liệu báo cáo:", err);
+    } finally {
+      setLoading(false);
+    }
+  };
+  fetchReportData();
+}, [period]);
   const [channelFilter, setChannelFilter] = useState("all");
 
   const data = reportData[period];
