@@ -10,7 +10,7 @@ function CartArea({
   onPaymentComplete,
   shopInfo,
 }) {
-  const [stockMessage, setStockMessage] = useState("");
+  const [cartMessage, setCartMessage] = useState("");
   const [selectedCustomer, setSelectedCustomer] = useState({
     id: "walk-in",
     name: "Walk-in Customer",
@@ -37,7 +37,27 @@ function CartArea({
     setDiscountCode("");
     setDiscountError("");
     setShowDiscountInput(false);
-    setStockMessage("");
+    setCartMessage("");
+  }, [cartItems.length]);
+
+  useEffect(() => {
+    const handleCheckoutShortcut = (event) => {
+      if (event.key !== "F1") return;
+
+      event.preventDefault();
+      if (cartItems.length === 0) {
+        setCartMessage(
+          "Giỏ hàng đang trống. Vui lòng thêm sản phẩm trước khi thanh toán."
+        );
+        return;
+      }
+
+      setCartMessage("");
+      setCheckoutOpen(true);
+    };
+
+    window.addEventListener("keydown", handleCheckoutShortcut);
+    return () => window.removeEventListener("keydown", handleCheckoutShortcut);
   }, [cartItems.length]);
 
   const handleCustomerChange = useCallback((customer) => {
@@ -50,7 +70,7 @@ function CartArea({
 
     const available = item.onHand - item.reserved;
     if (amount > 0 && item.quantity >= available) {
-      setStockMessage(`Không thể thêm "${item.name}": đã đạt tồn khả dụng.`);
+      setCartMessage(`Không thể thêm "${item.name}": đã đạt tồn khả dụng.`);
       return;
     }
 
@@ -61,14 +81,14 @@ function CartArea({
           : cartItem
       )
     );
-    setStockMessage("");
+    setCartMessage("");
   };
 
   const removeCartItem = (itemId) => {
     setCartItems((currentItems) =>
       currentItems.filter((item) => item.id !== itemId)
     );
-    setStockMessage("");
+    setCartMessage("");
   };
 
   const applyDiscountCode = (event) => {
@@ -166,9 +186,9 @@ function CartArea({
             </div>
           )}
         </div>
-        {stockMessage && (
+        {cartMessage && (
           <p className="cart-stock-message" role="alert">
-            {stockMessage}
+            {cartMessage}
           </p>
         )}
       </section>
