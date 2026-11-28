@@ -8,11 +8,17 @@
 }
 
 .oism-content {
-  flex: 1;
+  flex: 1 1 0;
   min-width: 0;
+  width: 0;
   height: 100vh;
   overflow: auto;
   background: #f8fafc;
+  box-sizing: border-box;
+}
+
+.oism-content * {
+  box-sizing: border-box;
 }
 
 .coming-soon-page {
@@ -28,4 +34,37 @@
 
 .coming-soon-page h2 {
   color: #0f172a;
+}
+
+/* Tablet */
+@media (max-width: 900px) {
+  .oism-content {
+    min-width: 0;
+  }
+}
+
+/* Mobile */
+@media (max-width: 600px) {
+  .oism-app-layout {
+    width: 100%;
+    min-width: 0;
+  }
+
+  .oism-content {
+    width: calc(100% - 68px);
+    flex: 1 1 calc(100% - 68px);
+    min-width: 0;
+    overflow-x: hidden;
+    overflow-y: auto;
+  }
+
+  .oism-content table {
+    max-width: 100%;
+  }
+
+  .oism-content input,
+  .oism-content select,
+  .oism-content textarea {
+    max-width: 100%;
+  }
 }

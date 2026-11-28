@@ -6,13 +6,15 @@
   flex-direction: column;
   width: 252px;
   height: 100vh;
-  overflow: visible;
+  min-width: 0;
+  overflow: hidden;
   color: #cbd5e1;
   background: #0f172a;
   font-family: "Inter", sans-serif;
 }
 
 .sidebar-brand {
+  flex-shrink: 0;
   padding: 25px 22px 23px;
   border-bottom: 1px solid rgba(148, 163, 184, 0.16);
 }
@@ -38,6 +40,7 @@
   flex: 1;
   min-height: 0;
   overflow-y: auto;
+  overflow-x: hidden;
   padding: 15px 12px;
   scrollbar-width: thin;
   scrollbar-color: #334155 transparent;
@@ -70,6 +73,7 @@
   text-align: left;
   font-size: 12px;
   font-weight: 500;
+  cursor: pointer;
   transition: background 0.15s ease, color 0.15s ease;
 }
 
@@ -99,6 +103,7 @@
 
 .sidebar-bottom {
   position: relative;
+  flex-shrink: 0;
   padding: 12px;
   border-top: 1px solid rgba(148, 163, 184, 0.16);
 }
@@ -188,9 +193,96 @@
   background: rgba(148, 163, 184, 0.12);
 }
 
+/* Tablet */
 @media (max-width: 900px) {
   .oism-sidebar {
     flex-basis: 220px;
     width: 220px;
+  }
+}
+
+/* Mobile: icon-only sidebar */
+@media (max-width: 600px) {
+  .oism-sidebar {
+    flex: 0 0 68px;
+    width: 68px;
+    min-width: 68px;
+  }
+
+  .sidebar-brand {
+    padding: 18px 4px;
+    text-align: center;
+  }
+
+  .sidebar-brand h2 {
+    font-size: 17px;
+    letter-spacing: 0.5px;
+  }
+
+  .sidebar-brand span {
+    display: none;
+  }
+
+  .sidebar-navigation {
+    padding: 12px 7px;
+  }
+
+  .sidebar-group {
+    margin-bottom: 10px;
+  }
+
+  .sidebar-group-title {
+    display: none;
+  }
+
+  .sidebar-item {
+    justify-content: center;
+    gap: 0;
+    min-height: 44px;
+    margin: 4px 0;
+    padding: 8px 4px;
+  }
+
+  .sidebar-item span {
+    display: none;
+  }
+
+  .sidebar-icon {
+    flex: 0 0 20px;
+    width: 20px;
+    height: 20px;
+  }
+
+  .sidebar-bottom {
+    padding: 8px 7px;
+  }
+
+  .sidebar-user {
+    justify-content: center;
+    padding: 7px 3px;
+  }
+
+  .sidebar-user-info,
+  .sidebar-user > svg:last-child {
+    display: none;
+  }
+
+  .sidebar-avatar {
+    flex-basis: 34px;
+  }
+
+  .sidebar-user-menu {
+    position: fixed;
+    right: 8px;
+    bottom: 70px;
+    left: 76px;
+  }
+
+  .sidebar-user-menu .sidebar-logout-button span {
+    display: inline;
+  }
+
+  .sidebar-user-menu .sidebar-logout-button {
+    justify-content: flex-start;
   }
 }

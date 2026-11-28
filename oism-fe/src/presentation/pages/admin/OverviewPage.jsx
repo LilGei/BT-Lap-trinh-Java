@@ -1,7 +1,5 @@
 
-import React, { useMemo, useState, useEffect } from "react";
-import reportApi from "@/infrastructure/api/reportApi";
-import orderApi from "@/infrastructure/api/orderApi";
+import { useMemo, useState } from "react";
 import "@/presentation/styles/OverviewPage.css";
 
 const revenueData = [
@@ -54,28 +52,6 @@ const formatMoney = (amount) =>
 
 function OverviewPage() {
   const [period, setPeriod] = useState("7 ngày qua");
-  const [revenueReport, setRevenueReport] = useState({ total_orders: 0, total_revenue: 0, average_order_value: 0 });
-const [realOrders, setRealOrders] = useState([]);
-const [loading, setLoading] = useState(true);
-
-useEffect(() => {
-  const fetchData = async () => {
-    try {
-      setLoading(true);
-      const [revData, ordersData] = await Promise.all([
-        reportApi.getRevenue(),
-        orderApi.getOrders()
-      ]);
-      if (revData) setRevenueReport(revData);
-      if (Array.isArray(ordersData)) setRealOrders(ordersData);
-    } catch (err) {
-      console.error("Lỗi tải dữ liệu tổng quan:", err);
-    } finally {
-      setLoading(false);
-    }
-  };
-  fetchData();
-}, []);
 
   const stats = [
     {

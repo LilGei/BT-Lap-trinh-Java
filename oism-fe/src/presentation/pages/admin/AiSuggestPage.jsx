@@ -68,9 +68,6 @@ function AiSuggestPage() {
   return (
     <div style={{ padding: 20 }}>
       <h2>Gợi ý nhập hàng từ AI</h2>
-       <p style={{ color: "#666", fontSize: "14px", marginBottom: "15px" }}>
-  <i>* Hệ thống đang hiển thị dữ liệu gợi ý mẫu. Sẵn sàng kết nối API AI khi Backend hoàn tất.</i>
-</p>
 
       <div style={{ marginBottom: 16 }}>
         <label>

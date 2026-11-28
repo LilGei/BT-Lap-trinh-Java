@@ -1,428 +1,535 @@
-import { useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
+import inventoryApi from "@/infrastructure/api/inventoryApi";
+import { productApi, extractList } from "@/infrastructure/api/productApi";
 import "@/presentation/styles/InventoryAlertPage.css";
 
-const initialProducts = [
-  {
-    id: 1,
-    sku: "SKU-001",
-    name: "Áo thun nam Basic",
-    category: "Thời trang",
-    warehouse: "Kho trung tâm",
-    quantity: 5,
-    minimum: 20,
-    status: "critical",
-  },
-  {
-    id: 2,
-    sku: "SKU-002",
-    name: "Quần jean nữ",
-    category: "Thời trang",
-    warehouse: "Kho trung tâm",
-    quantity: 12,
-    minimum: 15,
-    status: "low",
-  },
-  {
-    id: 3,
-    sku: "SKU-003",
-    name: "Tai nghe Bluetooth",
-    category: "Điện tử",
-    warehouse: "Kho chi nhánh 1",
-    quantity: 0,
-    minimum: 10,
-    status: "out",
-  },
-  {
-    id: 4,
-    sku: "SKU-004",
-    name: "Bình giữ nhiệt 500ml",
-    category: "Gia dụng",
-    warehouse: "Kho chi nhánh 1",
-    quantity: 8,
-    minimum: 20,
-    status: "critical",
-  },
-  {
-    id: 5,
-    sku: "SKU-005",
-    name: "Chuột không dây",
-    category: "Điện tử",
-    warehouse: "Kho trung tâm",
-    quantity: 18,
-    minimum: 15,
-    status: "normal",
-  },
-  {
-    id: 6,
-    sku: "SKU-006",
-    name: "Balo laptop",
-    category: "Phụ kiện",
-    warehouse: "Kho chi nhánh 2",
-    quantity: 9,
-    minimum: 12,
-    status: "low",
-  },
-  {
-    id: 7,
-    sku: "SKU-007",
-    name: "Sạc nhanh 20W",
-    category: "Điện tử",
-    warehouse: "Kho chi nhánh 2",
-    quantity: 0,
-    minimum: 8,
-    status: "out",
-  },
-];
+const PAGE_SIZE = 20;
 
-const statusLabels = {
-  out: "Hết hàng",
-  critical: "Rất thấp",
-  low: "Sắp hết",
-  normal: "An toàn",
+const formatNumber = (value) =>
+  Number(value ?? 0).toLocaleString("vi-VN");
+
+const getErrorMessage = (error) =>
+  error?.response?.data?.message ||
+  error?.response?.data?.error ||
+  error?.message ||
+  "Không thể tải dữ liệu.";
+
+const firstValue = (object, keys, fallback = null) => {
+  for (const key of keys) {
+    if (object?.[key] !== undefined && object?.[key] !== null) {
+      return object[key];
+    }
+  }
+
+  return fallback;
 };
 
 function InventoryAlertPage() {
-  const [products, setProducts] = useState(initialProducts);
+  const [stocks, setStocks] = useState([]);
+  const [branches, setBranches] = useState([]);
+  const [skus, setSkus] = useState([]);
+
   const [keyword, setKeyword] = useState("");
-  const [statusFilter, setStatusFilter] = useState("all");
-  const [warehouseFilter, setWarehouseFilter] = useState("all");
-  const [selectedProduct, setSelectedProduct] = useState(null);
-  const [minimumInput, setMinimumInput] = useState("");
+  const [branchFilter, setBranchFilter] = useState("");
+  const [statusFilter, setStatusFilter] = useState("ALL");
 
-  const stats = useMemo(
-    () => ({
-      total: products.length,
-      out: products.filter((p) => p.status === "out").length,
-      critical: products.filter((p) => p.status === "critical").length,
-      low: products.filter((p) => p.status === "low").length,
-    }),
-    [products]
-  );
+  const [page, setPage] = useState(0);
+  const [totalPages, setTotalPages] = useState(0);
+  const [totalElements, setTotalElements] = useState(0);
 
-  const filteredProducts = useMemo(() => {
-    return products.filter((product) => {
-      const search = keyword.toLowerCase().trim();
+  const [loading, setLoading] = useState(true);
+  const [loadingOptions, setLoadingOptions] = useState(true);
+  const [error, setError] = useState("");
+  const [lastUpdated, setLastUpdated] = useState(null);
 
-      const matchKeyword =
-        product.name.toLowerCase().includes(search) ||
-        product.sku.toLowerCase().includes(search);
+  // ==========================================
+  // 1. LOAD BRANCHES AND SKUS
+  // ==========================================
 
-      const matchStatus =
-        statusFilter === "all" || product.status === statusFilter;
+  const loadOptions = useCallback(async () => {
+    setLoadingOptions(true);
 
-      const matchWarehouse =
-        warehouseFilter === "all" ||
-        product.warehouse === warehouseFilter;
+    try {
+      const [branchResult, skuResult] = await Promise.allSettled([
+        inventoryApi.getBranches(),
+        productApi.getSkus(),
+      ]);
 
-      return matchKeyword && matchStatus && matchWarehouse;
-    });
-  }, [products, keyword, statusFilter, warehouseFilter]);
+      if (branchResult.status === "fulfilled") {
+        setBranches(extractList(branchResult.value));
+      }
 
-  const openEdit = (product) => {
-    setSelectedProduct(product);
-    setMinimumInput(String(product.minimum));
-  };
-
-  const saveMinimum = (e) => {
-    e.preventDefault();
-
-    const value = Number(minimumInput);
-
-    if (!Number.isInteger(value) || value < 0) {
-      alert("Mức tồn tối thiểu phải là số nguyên không âm.");
-      return;
+      if (skuResult.status === "fulfilled") {
+        setSkus(extractList(skuResult.value));
+      }
+    } finally {
+      setLoadingOptions(false);
     }
+  }, []);
 
-    setProducts((prev) =>
-      prev.map((product) => {
-        if (product.id !== selectedProduct.id) return product;
+  // ==========================================
+  // 2. LOAD LOW STOCK ALERTS
+  // ==========================================
 
-        const status =
-          product.quantity === 0
-            ? "out"
-            : product.quantity <= value * 0.5
-            ? "critical"
-            : product.quantity < value
-            ? "low"
-            : "normal";
+  const loadAlerts = useCallback(async () => {
+    setLoading(true);
+    setError("");
 
-        return { ...product, minimum: value, status };
-      })
-    );
+    try {
+      const params = {
+        page,
+        size: PAGE_SIZE,
+      };
 
-    setSelectedProduct(null);
-  };
+      if (branchFilter) {
+        params.branchId = branchFilter;
+      }
 
-  const exportCSV = () => {
-    const header = [
-      "SKU",
-      "Tên sản phẩm",
-      "Danh mục",
-      "Kho",
-      "Tồn hiện tại",
-      "Tồn tối thiểu",
-      "Trạng thái",
-    ];
+      // Backend đã xác nhận:
+      // GET /api/inventory/stock?lowStockOnly=true
 
-    const rows = filteredProducts.map((p) => [
-      p.sku,
-      p.name,
-      p.category,
-      p.warehouse,
-      p.quantity,
-      p.minimum,
-      statusLabels[p.status],
-    ]);
+      const response = await inventoryApi.getLowStockAlerts(params);
 
-    const csv = [header, ...rows]
-      .map((row) =>
-        row.map((value) => `"${String(value).replace(/"/g, '""')}"`).join(",")
-      )
-      .join("\n");
+      const payload = response?.data ?? response;
+      const list = extractList(payload);
 
-    const blob = new Blob(["\uFEFF" + csv], {
-      type: "text/csv;charset=utf-8;",
+      setStocks(list);
+      setTotalPages(Number(payload?.totalPages ?? 0));
+      setTotalElements(Number(payload?.totalElements ?? list.length));
+
+      setLastUpdated(new Date());
+    } catch (err) {
+      setStocks([]);
+      setTotalPages(0);
+      setTotalElements(0);
+      setError(getErrorMessage(err));
+    } finally {
+      setLoading(false);
+    }
+  }, [page, branchFilter]);
+
+  useEffect(() => {
+    loadOptions();
+  }, [loadOptions]);
+
+  useEffect(() => {
+    loadAlerts();
+  }, [loadAlerts]);
+
+  // ==========================================
+  // 3. NORMALIZE STOCK DATA
+  // ==========================================
+
+  const normalizedStocks = useMemo(() => {
+    return stocks.map((stock, index) => {
+      const skuId = firstValue(stock, [
+        "skuId",
+        "variantId",
+        "productVariantId",
+      ]);
+
+      const sku = skus.find(
+        (item) => String(item.id) === String(skuId)
+      );
+
+      const branchId = firstValue(stock, [
+        "branchId",
+        "warehouseId",
+      ]);
+
+      const branch = branches.find(
+        (item) => String(item.id) === String(branchId)
+      );
+
+      // Ưu tiên available vì Backend xác định cảnh báo
+      // dựa trên số lượng có thể bán / sử dụng.
+
+      const quantity = Number(
+        firstValue(stock, [
+          "available",
+          "availableQuantity",
+          "availableQty",
+          "quantity",
+          "onHand",
+          "onHandQuantity",
+          "stockQuantity",
+          "currentStock",
+        ], 0)
+      );
+
+      // Ngưỡng cảnh báo được cấu hình trên SKU.
+
+      const threshold = Number(
+        firstValue(stock, [
+          "reorderThreshold",
+          "minStock",
+          "minStockLevel",
+          "minimumStock",
+          "reorderLevel",
+          "lowStockThreshold",
+          "safetyStock",
+        ], 0)
+      );
+
+      const skuCode =
+        firstValue(stock, ["skuCode", "code", "sku"]) ||
+        sku?.skuCode ||
+        sku?.code ||
+        sku?.sku ||
+        "Chưa xác định";
+
+      const productName =
+        firstValue(stock, [
+          "productName",
+          "name",
+          "variantName",
+        ]) ||
+        sku?.productName ||
+        sku?.name ||
+        sku?.product?.name ||
+        "Chưa có tên sản phẩm";
+
+      // Backend trả về danh sách đã được lọc lowStockOnly.
+      // Phân loại tiếp thành hết hàng và tồn kho thấp.
+
+      const status = quantity <= 0 ? "OUT" : "LOW";
+
+      return {
+        id: stock.id ?? `${branchId}-${skuId}-${index}`,
+        skuId,
+        skuCode,
+        productName,
+        branchId,
+        branchName:
+          branch?.name ||
+          branch?.code ||
+          stock.branchName ||
+          "Chưa xác định",
+        quantity,
+        threshold,
+        status,
+      };
     });
+  }, [stocks, skus, branches]);
 
-    const url = URL.createObjectURL(blob);
-    const link = document.createElement("a");
-    link.href = url;
-    link.download = "canh-bao-ton-kho.csv";
-    link.click();
-    URL.revokeObjectURL(url);
+  // ==========================================
+  // 4. CLIENT-SIDE FILTER
+  // ==========================================
+
+  const filteredStocks = useMemo(() => {
+    const search = keyword.trim().toLowerCase();
+
+    return normalizedStocks.filter((item) => {
+      const matchesKeyword =
+        !search ||
+        String(item.skuCode).toLowerCase().includes(search) ||
+        String(item.productName).toLowerCase().includes(search) ||
+        String(item.branchName).toLowerCase().includes(search);
+
+      const matchesStatus =
+        statusFilter === "ALL" ||
+        item.status === statusFilter;
+
+      return matchesKeyword && matchesStatus;
+    });
+  }, [normalizedStocks, keyword, statusFilter]);
+
+  // ==========================================
+  // 5. PAGE STATISTICS
+  // ==========================================
+
+  const statistics = useMemo(() => ({
+    total: totalElements,
+
+    out: normalizedStocks.filter(
+      (item) => item.status === "OUT"
+    ).length,
+
+    low: normalizedStocks.filter(
+      (item) => item.status === "LOW"
+    ).length,
+  }), [normalizedStocks, totalElements]);
+
+  // ==========================================
+  // 6. REFRESH
+  // ==========================================
+
+  const handleRefresh = async () => {
+    await loadOptions();
+    await loadAlerts();
   };
+
+  const handleResetFilters = () => {
+    setKeyword("");
+    setBranchFilter("");
+    setStatusFilter("ALL");
+    setPage(0);
+  };
+
+  const getStatusLabel = (status) =>
+    status === "OUT" ? "Hết hàng" : "Tồn kho thấp";
+
+  const getStatusClass = (status) =>
+    status === "OUT"
+      ? "alert-status-out"
+      : "alert-status-low";
+
+  // ==========================================
+  // 7. RENDER
+  // ==========================================
 
   return (
     <div className="inventory-alert-page">
-      <header className="iap-header">
+      <div className="inventory-alert-header">
         <div>
-          <h1>Cảnh báo tồn kho</h1>
-          <p>Theo dõi sản phẩm sắp hết hàng và cần bổ sung tồn kho.</p>
-        </div>
-
-        <button className="iap-export-btn" onClick={exportCSV}>
-          <span>↓</span> Xuất báo cáo
-        </button>
-      </header>
-
-      <section className="iap-stats">
-        <div className="iap-stat-card">
-          <div className="iap-stat-top">
-            <span>Tổng sản phẩm theo dõi</span>
-            <span className="iap-stat-icon blue">▦</span>
-          </div>
-          <strong>{stats.total}</strong>
-          <small>Sản phẩm trong danh sách</small>
-        </div>
-
-        <div className="iap-stat-card">
-          <div className="iap-stat-top">
-            <span>Hết hàng</span>
-            <span className="iap-stat-icon red">!</span>
-          </div>
-          <strong className="red-text">{stats.out}</strong>
-          <small>Cần nhập hàng ngay</small>
-        </div>
-
-        <div className="iap-stat-card">
-          <div className="iap-stat-top">
-            <span>Tồn kho rất thấp</span>
-            <span className="iap-stat-icon orange">!</span>
-          </div>
-          <strong className="orange-text">{stats.critical}</strong>
-          <small>Nguy cơ thiếu hàng</small>
-        </div>
-
-        <div className="iap-stat-card">
-          <div className="iap-stat-top">
-            <span>Sắp hết hàng</span>
-            <span className="iap-stat-icon yellow">◷</span>
-          </div>
-          <strong className="yellow-text">{stats.low}</strong>
-          <small>Cần theo dõi</small>
-        </div>
-      </section>
-
-      <section className="iap-warning">
-        <span className="iap-warning-icon">!</span>
-        <div>
-          <strong>Cần chú ý tình trạng tồn kho</strong>
+          <h2>Cảnh báo tồn kho</h2>
           <p>
-            Có {stats.out + stats.critical} sản phẩm đang hết hàng hoặc có mức
-            tồn kho rất thấp.
+            Theo dõi sản phẩm có số lượng tồn kho thấp
+            hoặc đã hết hàng.
           </p>
         </div>
-      </section>
 
-      <section className="iap-panel">
-        <div className="iap-panel-heading">
-          <div>
-            <h2>Danh sách cảnh báo</h2>
-            <p>Kiểm tra số lượng tồn và mức tồn tối thiểu của từng sản phẩm.</p>
+        <button
+          type="button"
+          className="alert-btn alert-btn-primary"
+          onClick={handleRefresh}
+          disabled={loading || loadingOptions}
+        >
+          ↻ Làm mới
+        </button>
+      </div>
+
+      {/* STATISTICS */}
+
+      <div className="alert-stat-grid">
+        <div className="alert-stat-card">
+          <span>Tổng sản phẩm được trả về</span>
+          <strong>{formatNumber(statistics.total)}</strong>
+        </div>
+
+        <div className="alert-stat-card alert-stat-danger">
+          <span>Hết hàng (trang hiện tại)</span>
+          <strong>{formatNumber(statistics.out)}</strong>
+        </div>
+
+        <div className="alert-stat-card alert-stat-warning">
+          <span>Tồn kho thấp (trang hiện tại)</span>
+          <strong>{formatNumber(statistics.low)}</strong>
+        </div>
+      </div>
+
+      {/* FILTER */}
+
+      <section className="alert-card">
+        <h3>Bộ lọc cảnh báo</h3>
+
+        <div className="alert-filter-grid">
+          <div className="alert-field">
+            <label>Tìm kiếm</label>
+
+            <input
+              type="text"
+              value={keyword}
+              onChange={(event) => setKeyword(event.target.value)}
+              placeholder="Mã SKU, tên sản phẩm..."
+            />
+          </div>
+
+          <div className="alert-field">
+            <label>Chi nhánh / Kho</label>
+
+            <select
+              value={branchFilter}
+              onChange={(event) => {
+                setBranchFilter(event.target.value);
+                setPage(0);
+              }}
+              disabled={loadingOptions}
+            >
+              <option value="">Tất cả kho</option>
+
+              {branches.map((branch) => (
+                <option key={branch.id} value={branch.id}>
+                  {branch.name || branch.code}
+                </option>
+              ))}
+            </select>
+          </div>
+
+          <div className="alert-field">
+            <label>Trạng thái</label>
+
+            <select
+              value={statusFilter}
+              onChange={(event) => setStatusFilter(event.target.value)}
+            >
+              <option value="ALL">Tất cả trạng thái</option>
+              <option value="OUT">Hết hàng</option>
+              <option value="LOW">Tồn kho thấp</option>
+            </select>
+          </div>
+
+          <div className="alert-field">
+            <label>&nbsp;</label>
+
+            <button
+              type="button"
+              className="alert-btn"
+              onClick={handleResetFilters}
+            >
+              Xóa bộ lọc
+            </button>
           </div>
         </div>
+      </section>
 
-        <div className="iap-filters">
-          <input
-            value={keyword}
-            onChange={(e) => setKeyword(e.target.value)}
-            placeholder="Tìm theo tên sản phẩm hoặc SKU..."
-          />
+      {/* ALERT TABLE */}
 
-          <select
-            value={statusFilter}
-            onChange={(e) => setStatusFilter(e.target.value)}
-          >
-            <option value="all">Tất cả trạng thái</option>
-            <option value="out">Hết hàng</option>
-            <option value="critical">Rất thấp</option>
-            <option value="low">Sắp hết</option>
-            <option value="normal">An toàn</option>
-          </select>
+      <section className="alert-card">
+        <div className="alert-table-heading">
+          <div>
+            <h3>Danh sách cảnh báo</h3>
+            <p>
+              {formatNumber(filteredStocks.length)} sản phẩm
+              trong trang hiện tại
+            </p>
+          </div>
 
-          <select
-            value={warehouseFilter}
-            onChange={(e) => setWarehouseFilter(e.target.value)}
-          >
-            <option value="all">Tất cả kho</option>
-            <option value="Kho trung tâm">Kho trung tâm</option>
-            <option value="Kho chi nhánh 1">Kho chi nhánh 1</option>
-            <option value="Kho chi nhánh 2">Kho chi nhánh 2</option>
-          </select>
-
-          <button
-            className="iap-reset-btn"
-            onClick={() => {
-              setKeyword("");
-              setStatusFilter("all");
-              setWarehouseFilter("all");
-            }}
-          >
-            Đặt lại
-          </button>
+          <span className="alert-readonly">
+            Chỉ xem dữ liệu
+          </span>
         </div>
 
-        <div className="iap-table-wrap">
-          <table className="iap-table">
+        {error && (
+          <div className="alert-error">
+            <strong>Không thể tải cảnh báo.</strong>
+            <p>{error}</p>
+
+            <button
+              type="button"
+              className="alert-btn"
+              onClick={loadAlerts}
+              disabled={loading}
+            >
+              Thử lại
+            </button>
+          </div>
+        )}
+
+        <div className="alert-table-wrapper">
+          <table className="alert-table">
             <thead>
               <tr>
-                <th>SKU</th>
-                <th>Sản phẩm</th>
-                <th>Kho</th>
+                <th>STT</th>
+                <th>Mã SKU</th>
+                <th>Tên sản phẩm</th>
+                <th>Chi nhánh / Kho</th>
                 <th>Tồn hiện tại</th>
-                <th>Tồn tối thiểu</th>
+                <th>Ngưỡng tối thiểu</th>
                 <th>Trạng thái</th>
-                <th>Thao tác</th>
               </tr>
             </thead>
 
             <tbody>
-              {filteredProducts.map((product) => (
-                <tr key={product.id}>
-                  <td className="iap-sku">{product.sku}</td>
-                  <td>
-                    <strong>{product.name}</strong>
-                    <small>{product.category}</small>
-                  </td>
-                  <td>{product.warehouse}</td>
-                  <td>
-                    <strong
-                      className={
-                        product.quantity === 0
-                          ? "red-text"
-                          : product.quantity < product.minimum
-                          ? "orange-text"
-                          : ""
-                      }
-                    >
-                      {product.quantity}
-                    </strong>
-                    <small>Sản phẩm</small>
-                  </td>
-                  <td>{product.minimum}</td>
-                  <td>
-                    <span className={`iap-status ${product.status}`}>
-                      {statusLabels[product.status]}
-                    </span>
-                  </td>
-                  <td>
-                    <button
-                      className="iap-edit-btn"
-                      onClick={() => openEdit(product)}
-                    >
-                      Điều chỉnh
-                    </button>
+              {loading ? (
+                <tr>
+                  <td colSpan="7" className="alert-empty">
+                    Đang tải dữ liệu...
                   </td>
                 </tr>
-              ))}
-
-              {filteredProducts.length === 0 && (
+              ) : error ? (
                 <tr>
-                  <td colSpan="7" className="iap-empty">
+                  <td colSpan="7" className="alert-empty">
+                    Không có dữ liệu để hiển thị.
+                  </td>
+                </tr>
+              ) : filteredStocks.length === 0 ? (
+                <tr>
+                  <td colSpan="7" className="alert-empty">
                     Không tìm thấy sản phẩm phù hợp.
                   </td>
                 </tr>
+              ) : (
+                filteredStocks.map((item, index) => (
+                  <tr key={item.id}>
+                    <td>{page * PAGE_SIZE + index + 1}</td>
+
+                    <td>
+                      <strong>{item.skuCode}</strong>
+                    </td>
+
+                    <td>{item.productName}</td>
+
+                    <td>{item.branchName}</td>
+
+                    <td className={
+                      item.status === "OUT"
+                        ? "alert-quantity-danger"
+                        : "alert-quantity-warning"
+                    }>
+                      {formatNumber(item.quantity)}
+                    </td>
+
+                    <td>
+                      {item.threshold > 0
+                        ? formatNumber(item.threshold)
+                        : "Chưa cấu hình"}
+                    </td>
+
+                    <td>
+                      <span
+                        className={`alert-status ${getStatusClass(item.status)}`}
+                      >
+                        {getStatusLabel(item.status)}
+                      </span>
+                    </td>
+                  </tr>
+                ))
               )}
             </tbody>
           </table>
         </div>
 
-        <div className="iap-table-footer">
-          Hiển thị {filteredProducts.length} / {products.length} sản phẩm
+        {/* PAGINATION */}
+
+        <div className="alert-pagination">
+          <span>
+            Trang {page + 1}
+            {totalPages > 0 ? ` / ${totalPages}` : ""}
+          </span>
+
+          <div>
+            <button
+              type="button"
+              className="alert-btn"
+              disabled={loading || page <= 0}
+              onClick={() => setPage((current) => current - 1)}
+            >
+              Trước
+            </button>
+
+            <button
+              type="button"
+              className="alert-btn"
+              disabled={
+                loading ||
+                totalPages === 0 ||
+                page + 1 >= totalPages
+              }
+              onClick={() => setPage((current) => current + 1)}
+            >
+              Tiếp
+            </button>
+          </div>
+        </div>
+
+        <div className="alert-footer">
+          Cập nhật lần cuối:{" "}
+          {lastUpdated
+            ? lastUpdated.toLocaleString("vi-VN")
+            : "Chưa có dữ liệu"}
         </div>
       </section>
-
-      {selectedProduct && (
-        <div
-          className="iap-modal-overlay"
-          onMouseDown={(e) => {
-            if (e.target === e.currentTarget) setSelectedProduct(null);
-          }}
-        >
-          <form className="iap-modal" onSubmit={saveMinimum}>
-            <div className="iap-modal-header">
-              <div>
-                <h2>Điều chỉnh mức tồn tối thiểu</h2>
-                <p>{selectedProduct.name}</p>
-              </div>
-              <button
-                type="button"
-                onClick={() => setSelectedProduct(null)}
-              >
-                ×
-              </button>
-            </div>
-
-            <div className="iap-modal-info">
-              <span>SKU: {selectedProduct.sku}</span>
-              <span>Tồn hiện tại: {selectedProduct.quantity}</span>
-            </div>
-
-            <label>Mức tồn tối thiểu mới</label>
-            <input
-              type="number"
-              min="0"
-              step="1"
-              value={minimumInput}
-              onChange={(e) => setMinimumInput(e.target.value)}
-              required
-            />
-
-            <div className="iap-modal-actions">
-              <button
-                type="button"
-                className="iap-reset-btn"
-                onClick={() => setSelectedProduct(null)}
-              >
-                Hủy
-              </button>
-              <button type="submit" className="iap-save-btn">
-                Lưu thay đổi
-              </button>
-            </div>
-          </form>
-        </div>
-      )}
     </div>
   );
 }

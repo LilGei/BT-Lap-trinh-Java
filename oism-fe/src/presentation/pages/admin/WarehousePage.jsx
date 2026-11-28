@@ -1,89 +1,112 @@
 
-import { useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import "@/presentation/styles/WarehousePage.css";
-
-const initialWarehouses = [
-  {
-    id: 1,
-    code: "WH-HCM-01",
-    name: "Kho trung tâm TP.HCM",
-    address: "Quận 7, TP. Hồ Chí Minh",
-    manager: "Nguyễn Văn An",
-    phone: "0901234567",
-    status: "Đang hoạt động",
-  },
-  {
-    id: 2,
-    code: "WH-HN-01",
-    name: "Kho Hà Nội",
-    address: "Cầu Giấy, Hà Nội",
-    manager: "Trần Minh Tuấn",
-    phone: "0912345678",
-    status: "Đang hoạt động",
-  },
-  {
-    id: 3,
-    code: "WH-DN-01",
-    name: "Kho Đà Nẵng",
-    address: "Hải Châu, Đà Nẵng",
-    manager: "Lê Hoàng Nam",
-    phone: "0923456789",
-    status: "Đang hoạt động",
-  },
-  {
-    id: 4,
-    code: "WH-CT-01",
-    name: "Kho Cần Thơ",
-    address: "Ninh Kiều, Cần Thơ",
-    manager: "Phạm Quốc Bảo",
-    phone: "0934567890",
-    status: "Ngừng hoạt động",
-  },
-];
+import inventoryApi from "@/infrastructure/api/inventoryApi";
 
 const emptyForm = {
   code: "",
   name: "",
   address: "",
-  manager: "",
-  phone: "",
-  status: "Đang hoạt động",
+  type: "WAREHOUSE",
 };
 
 function WarehousePage() {
-  const [warehouses, setWarehouses] = useState(initialWarehouses);
+  const [warehouses, setWarehouses] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [submitting, setSubmitting] = useState(false);
+  const [apiError, setApiError] = useState("");
+
   const [keyword, setKeyword] = useState("");
   const [statusFilter, setStatusFilter] = useState("Tất cả");
+
   const [modal, setModal] = useState(null);
   const [form, setForm] = useState(emptyForm);
   const [error, setError] = useState("");
 
+  // ==========================================
+  // 1. LẤY DANH SÁCH CHI NHÁNH VÀ KHO
+  // ==========================================
+
+  const fetchWarehouses = useCallback(async () => {
+    try {
+      setLoading(true);
+      setApiError("");
+
+      const response = await inventoryApi.getBranches();
+
+      const warehouseData = Array.isArray(response)
+        ? response
+        : Array.isArray(response?.data)
+          ? response.data
+          : [];
+
+      const formattedWarehouses = warehouseData.map((item) => ({
+        id: item.id,
+        code: item.code || "",
+        name: item.name || "",
+        address: item.address || "",
+        type: item.type || "WAREHOUSE",
+        active: Boolean(item.active),
+        status: item.active
+          ? "Đang hoạt động"
+          : "Ngừng hoạt động",
+      }));
+
+      setWarehouses(formattedWarehouses);
+    } catch (err) {
+      console.error("Lỗi lấy danh sách chi nhánh và kho:", err);
+
+      setApiError(
+        err.response?.data?.message ||
+          err.response?.data?.error ||
+          "Không thể tải danh sách chi nhánh và kho. Vui lòng thử lại."
+      );
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    fetchWarehouses();
+  }, [fetchWarehouses]);
+
+  // ==========================================
+  // 2. THỐNG KÊ KHO
+  // ==========================================
+
   const stats = useMemo(
     () => ({
       total: warehouses.length,
-      active: warehouses.filter(
-        (item) => item.status === "Đang hoạt động"
-      ).length,
-      inactive: warehouses.filter(
-        (item) => item.status === "Ngừng hoạt động"
-      ).length,
+      active: warehouses.filter((item) => item.active).length,
+      inactive: warehouses.filter((item) => !item.active).length,
     }),
     [warehouses]
   );
 
-  const filteredWarehouses = warehouses.filter((item) => {
+  // ==========================================
+  // 3. TÌM KIẾM VÀ LỌC
+  // ==========================================
+
+  const filteredWarehouses = useMemo(() => {
     const searchText = keyword.trim().toLowerCase();
 
-    const matchesKeyword =
-      item.code.toLowerCase().includes(searchText) ||
-      item.name.toLowerCase().includes(searchText) ||
-      item.address.toLowerCase().includes(searchText);
+    return warehouses.filter((item) => {
+      const matchesKeyword =
+        item.code.toLowerCase().includes(searchText) ||
+        item.name.toLowerCase().includes(searchText) ||
+        item.address.toLowerCase().includes(searchText);
 
-    const matchesStatus =
-      statusFilter === "Tất cả" || item.status === statusFilter;
+      const matchesStatus =
+        statusFilter === "Tất cả" ||
+        item.status === statusFilter;
 
-    return matchesKeyword && matchesStatus;
-  });
+      return matchesKeyword && matchesStatus;
+    });
+  }, [warehouses, keyword, statusFilter]);
+
+  // ==========================================
+  // 4. QUẢN LÝ MODAL
+  // ==========================================
 
   const openAddModal = () => {
     setForm({ ...emptyForm });
@@ -91,39 +114,48 @@ function WarehousePage() {
     setModal({ type: "add" });
   };
 
-  const openEditModal = (warehouse) => {
-    setForm({ ...warehouse });
-    setError("");
-    setModal({ type: "edit", warehouse });
+  const openDetailModal = (warehouse) => {
+    setModal({
+      type: "detail",
+      warehouse,
+    });
   };
 
-  const openDetailModal = (warehouse) => {
-    setModal({ type: "detail", warehouse });
+  const closeModal = () => {
+    setModal(null);
+    setError("");
   };
 
   const handleFormChange = (e) => {
     const { name, value } = e.target;
-    setForm((prev) => ({ ...prev, [name]: value }));
+
+    setForm((prev) => ({
+      ...prev,
+      [name]: value,
+    }));
   };
 
-  const handleSubmit = (e) => {
+  // ==========================================
+  // 5. THÊM CHI NHÁNH / KHO
+  // POST /api/branches
+  // ==========================================
+
+  const handleSubmit = async (e) => {
     e.preventDefault();
 
-    if (
-      !form.code.trim() ||
-      !form.name.trim() ||
-      !form.address.trim() ||
-      !form.manager.trim() ||
-      !form.phone.trim()
-    ) {
-      setError("Vui lòng nhập đầy đủ thông tin.");
+    setError("");
+
+    const code = form.code.trim();
+    const name = form.name.trim();
+    const address = form.address.trim();
+
+    if (!code || !name) {
+      setError("Vui lòng nhập mã kho và tên kho.");
       return;
     }
 
     const duplicateCode = warehouses.some(
-      (item) =>
-        item.code.toLowerCase() === form.code.trim().toLowerCase() &&
-        item.id !== modal?.warehouse?.id
+      (item) => item.code.toLowerCase() === code.toLowerCase()
     );
 
     if (duplicateCode) {
@@ -131,56 +163,80 @@ function WarehousePage() {
       return;
     }
 
-    if (modal.type === "add") {
-      setWarehouses((prev) => [
-        ...prev,
-        {
-          ...form,
-          id: Date.now(),
-          code: form.code.trim(),
-          name: form.name.trim(),
-          address: form.address.trim(),
-          manager: form.manager.trim(),
-          phone: form.phone.trim(),
-        },
-      ]);
-    } else {
-      setWarehouses((prev) =>
-        prev.map((item) =>
-          item.id === modal.warehouse.id
-            ? {
-                ...form,
-                id: item.id,
-                code: form.code.trim(),
-                name: form.name.trim(),
-                address: form.address.trim(),
-                manager: form.manager.trim(),
-                phone: form.phone.trim(),
-              }
-            : item
-        )
-      );
-    }
+    const requestData = {
+      code,
+      name,
+      address,
+      type: form.type,
+    };
 
-    setModal(null);
+    try {
+      setSubmitting(true);
+
+      await inventoryApi.createBranch(requestData);
+
+      setModal(null);
+      setForm({ ...emptyForm });
+
+      await fetchWarehouses();
+    } catch (err) {
+      console.error("Lỗi thêm chi nhánh / kho:", err);
+
+      setError(
+        err.response?.data?.message ||
+          err.response?.data?.error ||
+          "Không thể thêm kho. Vui lòng kiểm tra lại thông tin."
+      );
+    } finally {
+      setSubmitting(false);
+    }
   };
 
-  const handleDelete = (warehouse) => {
+  // ==========================================
+  // 6. BẬT / TẮT TRẠNG THÁI KHO
+  // PATCH /api/branches/{id}/active
+  // ==========================================
+
+  const handleToggleActive = async (warehouse) => {
+    const nextActive = !warehouse.active;
+
     const confirmed = window.confirm(
-      `Bạn có chắc muốn xóa "${warehouse.name}" không?`
+      `Bạn có chắc muốn ${
+        nextActive ? "kích hoạt" : "ngừng hoạt động"
+      } "${warehouse.name}" không?`
     );
 
-    if (confirmed) {
-      setWarehouses((prev) =>
-        prev.filter((item) => item.id !== warehouse.id)
+    if (!confirmed) return;
+
+    try {
+      setApiError("");
+
+      await inventoryApi.toggleBranchActive(
+        warehouse.id,
+        nextActive
       );
-      setModal(null);
+
+      await fetchWarehouses();
+    } catch (err) {
+      console.error("Lỗi cập nhật trạng thái kho:", err);
+
+      setApiError(
+        err.response?.data?.message ||
+          err.response?.data?.error ||
+          "Không thể cập nhật trạng thái kho."
+      );
     }
   };
+
+  // ==========================================
+  // 7. GIAO DIỆN
+  // ==========================================
 
   return (
     <div className="warehouse-page">
       <main className="warehouse-main">
+
+        {/* HEADER */}
         <header className="warehouse-header">
           <div>
             <h1>Quản lý chi nhánh & kho</h1>
@@ -192,11 +248,13 @@ function WarehousePage() {
           <button
             className="warehouse-add-btn"
             onClick={openAddModal}
+            disabled={loading}
           >
             + Thêm kho mới
           </button>
         </header>
 
+        {/* THỐNG KÊ */}
         <section className="warehouse-stats">
           <div className="warehouse-stat-card">
             <span>Tổng số kho</span>
@@ -221,6 +279,7 @@ function WarehousePage() {
           </div>
         </section>
 
+        {/* DANH SÁCH KHO */}
         <section className="warehouse-card">
           <div className="warehouse-toolbar">
             <div>
@@ -253,6 +312,21 @@ function WarehousePage() {
             </div>
           </div>
 
+          {/* LỖI API */}
+          {apiError && (
+            <div className="warehouse-form-error">
+              {apiError}
+
+              <button
+                type="button"
+                onClick={fetchWarehouses}
+                disabled={loading}
+              >
+                Thử lại
+              </button>
+            </div>
+          )}
+
           <div className="warehouse-table-wrapper">
             <table className="warehouse-table">
               <thead>
@@ -260,28 +334,52 @@ function WarehousePage() {
                   <th>Mã kho</th>
                   <th>Tên kho</th>
                   <th>Địa chỉ</th>
-                  <th>Người phụ trách</th>
-                  <th>Số điện thoại</th>
+                  <th>Loại</th>
                   <th>Trạng thái</th>
                   <th>Thao tác</th>
                 </tr>
               </thead>
 
               <tbody>
-                {filteredWarehouses.length > 0 ? (
+                {loading ? (
+                  <tr>
+                    <td
+                      colSpan="6"
+                      className="warehouse-no-data"
+                    >
+                      Đang tải danh sách kho...
+                    </td>
+                  </tr>
+                ) : apiError ? (
+                  <tr>
+                    <td
+                      colSpan="6"
+                      className="warehouse-no-data"
+                    >
+                      Không thể tải dữ liệu từ máy chủ.
+                    </td>
+                  </tr>
+                ) : filteredWarehouses.length > 0 ? (
                   filteredWarehouses.map((warehouse) => (
                     <tr key={warehouse.id}>
                       <td className="warehouse-code">
                         {warehouse.code}
                       </td>
+
                       <td>{warehouse.name}</td>
-                      <td>{warehouse.address}</td>
-                      <td>{warehouse.manager}</td>
-                      <td>{warehouse.phone}</td>
+
+                      <td>{warehouse.address || "—"}</td>
+
+                      <td>
+                        {warehouse.type === "STORE"
+                          ? "Chi nhánh"
+                          : "Kho hàng"}
+                      </td>
+
                       <td>
                         <span
                           className={`warehouse-status ${
-                            warehouse.status === "Đang hoạt động"
+                            warehouse.active
                               ? "active"
                               : "inactive"
                           }`}
@@ -289,9 +387,11 @@ function WarehousePage() {
                           {warehouse.status}
                         </span>
                       </td>
+
                       <td>
                         <div className="warehouse-row-actions">
                           <button
+                            type="button"
                             title="Xem chi tiết"
                             onClick={() =>
                               openDetailModal(warehouse)
@@ -301,22 +401,14 @@ function WarehousePage() {
                           </button>
 
                           <button
-                            title="Chỉnh sửa"
+                            type="button"
                             onClick={() =>
-                              openEditModal(warehouse)
+                              handleToggleActive(warehouse)
                             }
                           >
-                            Sửa
-                          </button>
-
-                          <button
-                            className="delete"
-                            title="Xóa kho"
-                            onClick={() =>
-                              handleDelete(warehouse)
-                            }
-                          >
-                            Xóa
+                            {warehouse.active
+                              ? "Ngừng"
+                              : "Kích hoạt"}
                           </button>
                         </div>
                       </td>
@@ -324,8 +416,13 @@ function WarehousePage() {
                   ))
                 ) : (
                   <tr>
-                    <td colSpan="7" className="warehouse-no-data">
-                      Không tìm thấy kho hàng phù hợp.
+                    <td
+                      colSpan="6"
+                      className="warehouse-no-data"
+                    >
+                      {keyword || statusFilter !== "Tất cả"
+                        ? "Không tìm thấy kho hàng phù hợp."
+                        : "Chưa có chi nhánh hoặc kho nào trong hệ thống."}
                     </td>
                   </tr>
                 )}
@@ -339,20 +436,26 @@ function WarehousePage() {
         </section>
       </main>
 
+      {/* MODAL */}
       {modal && (
         <div className="warehouse-modal-overlay">
           <div className="warehouse-modal">
+
+            {/* MODAL CHI TIẾT */}
             {modal.type === "detail" ? (
               <>
                 <div className="warehouse-modal-header">
                   <div>
                     <h2>Chi tiết kho hàng</h2>
-                    <p>Thông tin chi tiết của kho được chọn.</p>
+                    <p>
+                      Thông tin chi tiết của kho được chọn.
+                    </p>
                   </div>
 
                   <button
+                    type="button"
                     className="warehouse-close"
-                    onClick={() => setModal(null)}
+                    onClick={closeModal}
                   >
                     ×
                   </button>
@@ -363,22 +466,28 @@ function WarehousePage() {
                     <span>Mã kho</span>
                     <strong>{modal.warehouse.code}</strong>
                   </div>
+
                   <div>
                     <span>Tên kho</span>
                     <strong>{modal.warehouse.name}</strong>
                   </div>
+
                   <div>
                     <span>Địa chỉ</span>
-                    <strong>{modal.warehouse.address}</strong>
+                    <strong>
+                      {modal.warehouse.address || "Chưa cập nhật"}
+                    </strong>
                   </div>
+
                   <div>
-                    <span>Người phụ trách</span>
-                    <strong>{modal.warehouse.manager}</strong>
+                    <span>Loại</span>
+                    <strong>
+                      {modal.warehouse.type === "STORE"
+                        ? "Chi nhánh"
+                        : "Kho hàng"}
+                    </strong>
                   </div>
-                  <div>
-                    <span>Số điện thoại</span>
-                    <strong>{modal.warehouse.phone}</strong>
-                  </div>
+
                   <div>
                     <span>Trạng thái</span>
                     <strong>{modal.warehouse.status}</strong>
@@ -387,38 +496,30 @@ function WarehousePage() {
 
                 <div className="warehouse-modal-actions">
                   <button
+                    type="button"
                     className="warehouse-secondary-btn"
-                    onClick={() => setModal(null)}
+                    onClick={closeModal}
                   >
                     Đóng
-                  </button>
-
-                  <button
-                    className="warehouse-add-btn"
-                    onClick={() =>
-                      openEditModal(modal.warehouse)
-                    }
-                  >
-                    Chỉnh sửa
                   </button>
                 </div>
               </>
             ) : (
+
+              /* MODAL THÊM KHO */
               <form onSubmit={handleSubmit}>
                 <div className="warehouse-modal-header">
                   <div>
-                    <h2>
-                      {modal.type === "add"
-                        ? "Thêm kho mới"
-                        : "Chỉnh sửa kho"}
-                    </h2>
-                    <p>Nhập thông tin chi nhánh và kho hàng.</p>
+                    <h2>Thêm kho mới</h2>
+                    <p>
+                      Nhập thông tin chi nhánh và kho hàng.
+                    </p>
                   </div>
 
                   <button
                     type="button"
                     className="warehouse-close"
-                    onClick={() => setModal(null)}
+                    onClick={closeModal}
                   >
                     ×
                   </button>
@@ -426,22 +527,24 @@ function WarehousePage() {
 
                 <div className="warehouse-form-grid">
                   <label>
-                    Mã kho
+                    Mã kho *
                     <input
                       name="code"
                       value={form.code}
                       onChange={handleFormChange}
                       placeholder="VD: WH-HCM-02"
+                      required
                     />
                   </label>
 
                   <label>
-                    Tên kho
+                    Tên kho *
                     <input
                       name="name"
                       value={form.name}
                       onChange={handleFormChange}
                       placeholder="Nhập tên kho"
+                      required
                     />
                   </label>
 
@@ -455,39 +558,15 @@ function WarehousePage() {
                     />
                   </label>
 
-                  <label>
-                    Người phụ trách
-                    <input
-                      name="manager"
-                      value={form.manager}
-                      onChange={handleFormChange}
-                      placeholder="Họ và tên"
-                    />
-                  </label>
-
-                  <label>
-                    Số điện thoại
-                    <input
-                      name="phone"
-                      value={form.phone}
-                      onChange={handleFormChange}
-                      placeholder="Nhập số điện thoại"
-                    />
-                  </label>
-
                   <label className="full">
-                    Trạng thái
+                    Loại chi nhánh / kho
                     <select
-                      name="status"
-                      value={form.status}
+                      name="type"
+                      value={form.type}
                       onChange={handleFormChange}
                     >
-                      <option value="Đang hoạt động">
-                        Đang hoạt động
-                      </option>
-                      <option value="Ngừng hoạt động">
-                        Ngừng hoạt động
-                      </option>
+                      <option value="WAREHOUSE">Kho hàng</option>
+                      <option value="STORE">Chi nhánh</option>
                     </select>
                   </label>
                 </div>
@@ -502,7 +581,8 @@ function WarehousePage() {
                   <button
                     type="button"
                     className="warehouse-secondary-btn"
-                    onClick={() => setModal(null)}
+                    onClick={closeModal}
+                    disabled={submitting}
                   >
                     Hủy
                   </button>
@@ -510,10 +590,11 @@ function WarehousePage() {
                   <button
                     type="submit"
                     className="warehouse-add-btn"
+                    disabled={submitting}
                   >
-                    {modal.type === "add"
-                      ? "Thêm kho"
-                      : "Lưu thay đổi"}
+                    {submitting
+                      ? "Đang xử lý..."
+                      : "Thêm kho"}
                   </button>
                 </div>
               </form>
