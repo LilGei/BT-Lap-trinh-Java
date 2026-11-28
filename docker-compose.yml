@@ -1,0 +1,46 @@
+# Chạy toàn bộ: docker compose up --build   (copy .env.example -> .env trước)
+services:
+  db:
+    image: postgres:16
+    environment:
+      POSTGRES_DB: oism
+      POSTGRES_USER: oism
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-oism}
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U oism -d oism"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+  api:
+    build:
+      context: .
+      dockerfile: oism-backend/Dockerfile
+      args:
+        # Mặc định build profile be1-only cho tới khi code BE2 khớp; sau đó đặt MVN_ARGS= (rỗng) trong .env
+        MVN_ARGS: ${MVN_ARGS--Pbe1-only}
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      DB_URL: jdbc:postgresql://db:5432/oism
+      DB_USER: oism
+      DB_PASSWORD: ${DB_PASSWORD:-oism}
+      JWT_SECRET: ${JWT_SECRET:?Hãy đặt JWT_SECRET (Base64, >= 32 byte) trong file .env}
+    ports:
+      - "8080:8080"
+
+  web:
+    build:
+      context: ./oism-fe
+    depends_on:
+      - api
+    ports:
+      - "3000:80"
+
+volumes:
+  pgdata:

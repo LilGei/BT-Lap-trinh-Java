@@ -12,11 +12,20 @@ import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.Set;
 
 @Component
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
+    /** Endpoint public của BE1: FE hay đính kèm access token đã hết hạn khi gọi refresh - không được trả 401 ở đây. */
+    private static final Set<String> PUBLIC_POST = Set.of(
+            "/api/auth/register-tenant", "/api/auth/login", "/api/auth/refresh", "/api/auth/logout");
+
     private final JwtTokenService tokens;
     public JwtAuthenticationFilter(JwtTokenService tokens) { this.tokens = tokens; }
+
+    @Override protected boolean shouldNotFilter(HttpServletRequest request) {
+        return "POST".equals(request.getMethod()) && PUBLIC_POST.contains(request.getRequestURI());
+    }
 
     @Override protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain chain)
             throws ServletException, IOException {
