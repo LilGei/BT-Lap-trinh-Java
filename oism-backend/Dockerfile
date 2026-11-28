@@ -5,7 +5,8 @@ COPY oism-database oism-database
 WORKDIR /workspace/oism-backend
 RUN mvn -q -DskipTests dependency:go-offline
 COPY oism-backend/src src
-RUN mvn -q -DskipTests package
+ARG MVN_ARGS=
+RUN mvn -q -DskipTests ${MVN_ARGS} package
 
 FROM eclipse-temurin:21-jre
 WORKDIR /app

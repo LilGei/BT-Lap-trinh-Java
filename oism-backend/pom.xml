@@ -46,4 +46,36 @@
       </plugin>
     </plugins>
   </build>
+  <profiles>
+    <!-- Build tạm khi controller Kho/Nhập hàng (BE2) chưa khớp DTO/service: mvn -Pbe1-only package
+         Bỏ profile này khi BE2 đã merge xong. -->
+    <profile>
+      <id>be1-only</id>
+      <build>
+        <plugins>
+          <plugin>
+            <groupId>org.apache.maven.plugins</groupId><artifactId>maven-compiler-plugin</artifactId>
+            <configuration>
+              <excludes>
+                <!-- controller Kho/Nhập hàng bản dùng entity UUID chung (chưa có DTO/service đi kèm) -->
+                <exclude>**/auth/InventoryController.java</exclude>
+                <exclude>**/auth/PurchaseController.java</exclude>
+                <exclude>**/auth/StockTransferController.java</exclude>
+                <exclude>**/auth/StocktakeController.java</exclude>
+                <!-- code BE2 (kiểu Long, trùng tên entity với oism-database): com.oism.{entity,repository,service,controller,dto} -->
+                <exclude>**/com/oism/entity/**</exclude>
+                <exclude>**/com/oism/repository/**</exclude>
+                <exclude>**/com/oism/service/**</exclude>
+                <exclude>**/com/oism/controller/**</exclude>
+                <exclude>**/com/oism/dto/**</exclude>
+              </excludes>
+              <testExcludes>
+                <testExclude>**/com/oism/service/**</testExclude>
+              </testExcludes>
+            </configuration>
+          </plugin>
+        </plugins>
+      </build>
+    </profile>
+  </profiles>
 </project>
